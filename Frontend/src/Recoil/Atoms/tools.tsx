@@ -3,6 +3,7 @@ import { atom } from 'recoil';
 export type toolTypes = {
     tools: {
         square: boolean,
+        biSquare: boolean,
         circle: boolean,
         line: boolean,
         text: boolean,
@@ -11,6 +12,7 @@ export type toolTypes = {
     }
     color: string,
     size: number,
+    cursor: string,
 
 }
 
@@ -19,6 +21,7 @@ export const tools = atom<toolTypes>({
     default: {
         tools: {
             square: false,
+            biSquare: false,
             circle: false,
             line: false,
             text: false,
@@ -27,5 +30,6 @@ export const tools = atom<toolTypes>({
         },
         color: 'black',
         size: 2,
+        cursor: 'plus',
     }
 });
