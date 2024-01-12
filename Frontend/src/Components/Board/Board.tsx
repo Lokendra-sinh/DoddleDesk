@@ -6,18 +6,30 @@ import { toolTypes } from "../../Recoil/Atoms/tools";
 import { elementTypes } from "../../Recoil/Atoms/elements";
 import { elementsContainer } from "../../Recoil/Atoms/elements";
 import { elementsAtom } from "../../Recoil/Atoms/elements";
+import { drawBiSquare } from '../../Utils/drawingHelpers';
+import { redrawElements } from '../../Utils/drawingHelpers';
+import { drawSquare } from '../../Utils/drawingHelpers';
+import { handleResize } from '../../Utils/canvasEventHandlers'
+import { initiateCanvas } from '../../Utils/canvasEventHandlers'
+import './Board.css';
 
 type mouseEvent = React.MouseEvent<HTMLCanvasElement, MouseEvent>;
+type position = {
+  x: number;
+  y: number;
+};
+
 
 const Board: React.FC = () => {
   console.log("inside board");
-
+  const cornerRadius = 20;
   const [isDrawing, setIsDrawing] = useState<boolean>(false);
-  const [startPosition, setStartPosition] = useState({ x: 0, y: 0 });
-  const [lastPosition, setLastPosition] = useState({ x: 0, y: 0 });
   const [selectedTools, setSelectedTool] = useRecoilState<toolTypes>(tools);
   const [elements, setElements] =
     useRecoilState<elementsContainer>(elementsAtom);
+
+    const [startPosition, setStartPosition] = useState<position>({ x: 0, y: 0 });
+    const [lastPosition, setLastPosition] = useState<position>({ x: 0, y: 0 });
 
   let currentSelectedTool: string;
   for (let key in selectedTools.tools) {
@@ -27,104 +39,64 @@ const Board: React.FC = () => {
   }
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  function setInitialCoordinates(e: mouseEvent) {
-    console.log("inside mousedown");
-    const x = e.clientX - (canvasRef.current?.offsetLeft ?? 0);
-    const y = e.clientY - (canvasRef.current?.offsetTop ?? 0);
-    setStartPosition({ x, y });
-    setIsDrawing(true);
-  }
-
-  function setFinalCoordinates(e: mouseEvent) {
-    console.log("inside mouseup");
-    const x = e.clientX - (canvasRef.current?.offsetLeft ?? 0);
-    const y = e.clientY - (canvasRef.current?.offsetTop ?? 0);
-    setLastPosition({ x, y });
-    setIsDrawing(false);
-    const element: elementTypes = {
-      type: currentSelectedTool,
-      startX: startPosition.x,
-      startY: startPosition.y,
-      endX: x,
-      endY: y,
-      color: selectedTools.color,
-      size: selectedTools.size,
-    };
-    setElements([...elements, element]);
-  }
-
-  function initiateDrawing(e: mouseEvent) {
+  function handleStartDrawing(e: mouseEvent) {
     console.log("inside mousemove");
     if (!isDrawing || !canvasRef.current) return;
 
-    const currentX = e.clientX - (canvasRef.current.offsetLeft ?? 0);
-    const currentY = e.clientY - (canvasRef.current.offsetTop ?? 0);
-
-    // Clear the canvas and redraw existing elements here if necessary
-    // elements.forEach(element => drawElementFromState(element));
-
-    drawSquare(currentX, currentY);
+    const lastX = e.clientX - (canvasRef.current.offsetLeft ?? 0);
+    const lastY = e.clientY - (canvasRef.current.offsetTop ?? 0);
+    setLastPosition({ x: lastX, y: lastY });
+    selectedTools.tools.square && drawSquare(canvasRef, selectedTools, startPosition, { x: lastX, y: lastY }, elements);
+    selectedTools.tools.biSquare && drawBiSquare(canvasRef, startPosition, { x: lastX, y: lastY }, selectedTools, elements, cornerRadius);
   }
 
-  function drawSquare(currentX: number, currentY: number) {
+  function handleInitiateDrawing(e: mouseEvent) {
+    console.log("inside mousedown");
     if (!canvasRef.current) return;
-    const ctx = canvasRef.current.getContext("2d");
-    if (!ctx) return;
-    ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-    redrawElements();
-    ctx.strokeStyle = selectedTools.color;
-    ctx.lineWidth = selectedTools.size;
-    ctx.strokeRect(
-      startPosition.x,
-      startPosition.y,
-      currentX - startPosition.x,
-      currentY - startPosition.y
-    );
-    // ctx.strokeRect(startPosition.x, startPosition.y, currentX - startPosition.x, currentY - startPosition.y);
+    const newX = e.clientX - (canvasRef.current.offsetLeft ?? 0);
+    const newY = e.clientY - (canvasRef.current.offsetTop ?? 0);
+    setStartPosition({ x: newX, y: newY });
+    setIsDrawing(true);
   }
 
-  const drawElement = (currentX: number, currentY: number) => {
+  function handleStopDrawing(e: mouseEvent) {
+    console.log("inside mouseup");
     if (!canvasRef.current) return;
-    selectedTools.tools.square && drawSquare(currentX, currentY);
+    const newX = e.clientX - (canvasRef.current.offsetLeft ?? 0);
+    const newY = e.clientY - (canvasRef.current.offsetTop ?? 0);
+    setLastPosition({ x: newX, y: newY });
+  const element: elementTypes = {
+    type: currentSelectedTool,
+    startCoordinates: startPosition,
+    endCoordinates: { x: newX, y: newY },
+    color: selectedTools.color,
+    size: selectedTools.size,
+    cornerRadius: currentSelectedTool === "biSquare" ? cornerRadius : undefined,
+    cursor: selectedTools.cursor,
   };
-
-  function redrawElements() {
-    if (!canvasRef.current) return;
-    const ctx = canvasRef.current?.getContext("2d");
-    if (!ctx) return;
-    ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-    elements.forEach((element) => {
-      ctx.strokeStyle = element.color;
-        ctx.lineWidth = element.size;
-      ctx.strokeRect(
-        element.startX,
-        element.startY,
-        element.endX - element.startX,
-        element.endY - element.startY
-      );
-    });
+  setElements([...elements, element]);
+  setIsDrawing(false);
   }
 
   useEffect(() => {
     if (!canvasRef.current) return;
     const ctx = canvasRef.current.getContext("2d");
     if (!ctx) return;
-    initiateCanvas(canvasRef.current);
-    redrawElements();
+    initiateCanvas(canvasRef);
+    redrawElements(canvasRef, elements);
 
-    const handleResize = () => {
-        if(!canvasRef.current) return;
-        const dpi = window.devicePixelRatio;
-        canvasRef.current.width = window.innerWidth * dpi;
-        canvasRef.current.height = window.innerHeight * dpi;
-        ctx.scale(dpi, dpi);
-        redrawElements();
-    };
+    const resizeClosure = () => handleResize(canvasRef, elements);
 
-    window.addEventListener("resize", handleResize);
+    window.addEventListener("resize", resizeClosure);
+
+    if(elements.length > 0) {
+      elements.forEach((element) => {
+        console.log(element);
+      });
+    }
 
     return () => {
-      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("resize", resizeClosure);
     };
   }, [elements]);
 
@@ -132,27 +104,14 @@ const Board: React.FC = () => {
     <div className="w-full h-full bg-gray-100">
       <Navbar />
       <canvas
-        onMouseDown={setInitialCoordinates}
-        onMouseUp={setFinalCoordinates}
-        onMouseMove={initiateDrawing}
+        onMouseDown={handleInitiateDrawing}
+        onMouseMove={handleStartDrawing}
+        onMouseUp={handleStopDrawing}
         ref={canvasRef}
         id="canvas"
-        className="bg-gray-100"
       ></canvas>
     </div>
   );
 };
 
 export default Board;
-
-function initiateCanvas(canvas: HTMLCanvasElement | null) {
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    const dpi = window.devicePixelRatio || 1;
-    canvas.width = window.innerWidth * dpi;
-    canvas.height = window.innerHeight * dpi;
-    ctx.scale(dpi, dpi);
-    ctx.fillStyle = "#f9fafb";
-    ctx.fillRect(0, 0, canvas.width / dpi, canvas.height / dpi);
-  }

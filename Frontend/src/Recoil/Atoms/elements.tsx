@@ -1,13 +1,19 @@
 import { atom } from 'recoil';
 
+type position = {
+    x: number,
+    y: number,
+
+}
+
 export type elementTypes = {
         type: string,
-        startX: number,
-        startY: number,
-        endX: number,
-        endY: number,
+        startCoordinates: position,
+        endCoordinates: position,
         color: string,
         size: number,
+        cornerRadius? : number,
+        cursor: string,
 }
 
 export type elementsContainer = elementTypes[];
