@@ -94,6 +94,39 @@ export function drawSquare(canvasRef: React.RefObject<HTMLCanvasElement>, select
     );
   }
 
+export function drawCircle(canvasRef: React.RefObject<HTMLCanvasElement>, startPosition: Position, lastPosition: Position, selectedTools: toolTypes, elements: elementsContainer) {
+    if (!canvasRef.current) return;
+    const ctx = canvasRef.current.getContext("2d");
+    if (!ctx) return;
+    redrawElements(canvasRef, elements);
+    const radius = Math.sqrt(Math.pow(lastPosition.x - startPosition.x, 2) + Math.pow(lastPosition.y - startPosition.y, 2));
+    ctx.beginPath();
+    ctx.strokeStyle = selectedTools.color;
+    ctx.lineWidth = selectedTools.size;
+    ctx.arc(startPosition.x, startPosition.y, radius, 0, 2 * Math.PI);
+    ctx.stroke();
+    ctx.closePath();
+  
+}
+
+export function drawEllipse(canvasRef: React.RefObject<HTMLCanvasElement>, startPosition: Position, lastPosition: Position, selectedTools: toolTypes, elements: elementsContainer) {
+    
+        if (!canvasRef.current) return;
+        const ctx = canvasRef.current.getContext("2d");
+        if (!ctx) return;
+        redrawElements(canvasRef, elements);
+        const cx = (startPosition.x + lastPosition.x) / 2;
+        const cy = (startPosition.y + lastPosition.y) / 2;
+        const rx = Math.abs(lastPosition.x - startPosition.x) / 2;
+        const ry = Math.abs(lastPosition.y - startPosition.y) / 2;
+    
+        ctx.beginPath();
+        ctx.fillStyle = selectedTools.color;
+        ctx.ellipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI);
+        ctx.lineWidth = selectedTools.size;
+        ctx.stroke();
+}
+
  function handleBiSquare(
     canvasRef: React.RefObject<HTMLCanvasElement>,
     startPosition: Position,
@@ -176,6 +209,36 @@ function handleSquare(canvasRef: React.RefObject<HTMLCanvasElement>, startPositi
     );
 }
 
+function handleCircle(canvasRef: React.RefObject<HTMLCanvasElement>, startPosition: Position, lastPosition: Position, color: string, size: number) {
+    if (!canvasRef.current) return;
+    const ctx = canvasRef.current.getContext("2d");
+    if (!ctx) return;
+    const radius = Math.sqrt(Math.pow(lastPosition.x - startPosition.x, 2) + Math.pow(lastPosition.y - startPosition.y, 2));
+    ctx.beginPath();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = size;
+    ctx.arc(startPosition.x, startPosition.y, radius, 0, 2 * Math.PI);
+    ctx.stroke();
+    ctx.closePath();
+
+}
+
+function handleEllipse(canvasRef: React.RefObject<HTMLCanvasElement>, startPosition: Position, lastPosition: Position, color: string, size: number) {
+    if (!canvasRef.current) return;
+    const ctx = canvasRef.current.getContext("2d");
+    if (!ctx) return;
+    const cx = (startPosition.x + lastPosition.x) / 2;
+    const cy = (startPosition.y + lastPosition.y) / 2;
+    const rx = Math.abs(lastPosition.x - startPosition.x) / 2;
+    const ry = Math.abs(lastPosition.y - startPosition.y) / 2;
+
+    ctx.beginPath();
+    ctx.fillStyle = color;
+    ctx.ellipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI);
+    ctx.lineWidth = size;
+    ctx.stroke();
+}
+
 export function redrawElements(canvasRef: React.RefObject<HTMLCanvasElement>, elements: elementsContainer) {
     if (!canvasRef.current) return;
     const ctx = canvasRef.current?.getContext("2d");
@@ -184,5 +247,7 @@ export function redrawElements(canvasRef: React.RefObject<HTMLCanvasElement>, el
     elements.forEach((element) => {
         element.type === "square" && handleSquare(canvasRef, element.startCoordinates, element.endCoordinates, element.color, element.size);
         element.type === "biSquare" && handleBiSquare(canvasRef, element.startCoordinates, element.endCoordinates, element.cornerRadius ?? 10);
+        element.type === "circle" && handleCircle(canvasRef, element.startCoordinates, element.endCoordinates, element.color, element.size);
+        element.type === "ellipse" && handleEllipse(canvasRef, element.startCoordinates, element.endCoordinates, element.color, element.size);
     });
   }

@@ -7,7 +7,7 @@ type position = {
 }
 
 export type elementTypes = {
-        type: string,
+        type: string | undefined,
         startCoordinates: position,
         endCoordinates: position,
         color: string,
