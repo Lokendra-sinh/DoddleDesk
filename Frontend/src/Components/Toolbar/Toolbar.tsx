@@ -4,6 +4,7 @@ import { LuEraser } from "react-icons/lu";
 import { PiTextTBold } from "react-icons/pi";
 import { MdOutlineSquare } from "react-icons/md";
 import { BiSquareRounded } from "react-icons/bi";
+import { TbOvalVertical } from "react-icons/tb";
 import { LuShapes } from "react-icons/lu";
 import { SlActionUndo } from "react-icons/sl";
 import { LuPencil } from "react-icons/lu";
@@ -25,6 +26,7 @@ const Toolbar = () => {
         square: selectedTool === "square" ? true : false,
         biSquare: selectedTool === "biSquare" ? true : false,
         circle: selectedTool === "circle" ? true : false,
+        ellipse: selectedTool === "ellipse" ? true : false,
         line: selectedTool === "line" ? true : false,
         text: selectedTool === "text" ? true : false,
         image: selectedTool === "image" ? true : false,
@@ -63,22 +65,40 @@ const Toolbar = () => {
           {isShapesMenuOpen && (
             <div className="absolute bg-white shadow-full rounded-md top-12 flex -left-6">
               <button
-                onClick={() => handleToolsSelection("circle")}
+                onClick={(e) => {
+                    e.currentTarget.style.cursor = "crosshair";
+                    handleToolsSelection("circle")
+                }}
                 className="bg-transparent hover:bg-gray-100 rounded-md px-2 py-1"
               >
                 <FaRegCircle className="text-2xl" />
               </button>
               <button
-                onClick={() => handleToolsSelection("square")}
+                onClick={(e) => { 
+                    e.currentTarget.style.cursor = "crosshair";
+                    handleToolsSelection("ellipse")
+                }}
+                className="bg-transparent hover:bg-gray-100 rounded-md px-2 py-1"
+              >
+                <TbOvalVertical className="text-2xl" />
+              </button>
+              <button
+                 onClick={(e) => {
+                    e.currentTarget.style.cursor = "crosshair";
+                    handleToolsSelection("square")
+                }}
                 className="bg-transparent hover:bg-gray-100 rounded-md px-2 py-1"
               >
                 <MdOutlineSquare className="text-2xl" />
               </button>
               <button
-                onClick={() => handleToolsSelection("biSquare")}
+                 onClick={(e) => {
+                    e.currentTarget.style.cursor = "crosshair";
+                    handleToolsSelection("biSquare")
+                }}
                 className="bg-transparent hover:bg-gray-100 rounded-md px-2 py-1"
               >
-               <BiSquareRounded className="text-2xl" />
+                <BiSquareRounded className="text-2xl" />
               </button>
             </div>
           )}
