@@ -95,17 +95,23 @@ export function drawSquare(canvasRef: React.RefObject<HTMLCanvasElement>, select
   }
 
 export function drawCircle(canvasRef: React.RefObject<HTMLCanvasElement>, startPosition: Position, lastPosition: Position, selectedTools: toolTypes, elements: elementsContainer) {
-    if (!canvasRef.current) return;
-    const ctx = canvasRef.current.getContext("2d");
-    if (!ctx) return;
-    redrawElements(canvasRef, elements);
-    const radius = Math.sqrt(Math.pow(lastPosition.x - startPosition.x, 2) + Math.pow(lastPosition.y - startPosition.y, 2));
-    ctx.beginPath();
-    ctx.strokeStyle = selectedTools.color;
-    ctx.lineWidth = selectedTools.size;
-    ctx.arc(startPosition.x, startPosition.y, radius, 0, 2 * Math.PI);
-    ctx.stroke();
-    ctx.closePath();
+  if (!canvasRef.current) return;
+  const ctx = canvasRef.current.getContext("2d");
+  if (!ctx) return;
+
+  // Calculate the midpoint (center) of the circle
+  const centerX = (startPosition.x + lastPosition.x) / 2;
+  const centerY = (startPosition.y + lastPosition.y) / 2;
+
+  // Calculate the radius as half the distance between start and end points
+  const radius = Math.sqrt(Math.pow(lastPosition.x - startPosition.x, 2) + Math.pow(lastPosition.y - startPosition.y, 2)) / 2;
+  redrawElements(canvasRef, elements);
+  ctx.beginPath();
+  ctx.strokeStyle = selectedTools.color;
+  ctx.lineWidth = selectedTools.size;
+  ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+  ctx.stroke();
+  ctx.closePath();
   
 }
 
@@ -210,16 +216,23 @@ function handleSquare(canvasRef: React.RefObject<HTMLCanvasElement>, startPositi
 }
 
 function handleCircle(canvasRef: React.RefObject<HTMLCanvasElement>, startPosition: Position, lastPosition: Position, color: string, size: number) {
-    if (!canvasRef.current) return;
-    const ctx = canvasRef.current.getContext("2d");
-    if (!ctx) return;
-    const radius = Math.sqrt(Math.pow(lastPosition.x - startPosition.x, 2) + Math.pow(lastPosition.y - startPosition.y, 2));
-    ctx.beginPath();
-    ctx.strokeStyle = color;
-    ctx.lineWidth = size;
-    ctx.arc(startPosition.x, startPosition.y, radius, 0, 2 * Math.PI);
-    ctx.stroke();
-    ctx.closePath();
+  if (!canvasRef.current) return;
+  const ctx = canvasRef.current.getContext("2d");
+  if (!ctx) return;
+
+  // Calculate the midpoint (center) of the circle
+  const centerX = (startPosition.x + lastPosition.x) / 2;
+  const centerY = (startPosition.y + lastPosition.y) / 2;
+
+  // Calculate the radius as half the distance between start and end points
+  const radius = Math.sqrt(Math.pow(lastPosition.x - startPosition.x, 2) + Math.pow(lastPosition.y - startPosition.y, 2)) / 2;
+
+  ctx.beginPath();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = size;
+  ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+  ctx.stroke();
+  ctx.closePath();
 
 }
 
