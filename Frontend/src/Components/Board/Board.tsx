@@ -13,6 +13,7 @@ import { drawCircle } from "../../Utils/drawingHelpers";
 import { drawEllipse } from "../../Utils/drawingHelpers";
 import { handleResize } from "../../Utils/canvasEventHandlers";
 import { initiateCanvas } from "../../Utils/canvasEventHandlers";
+import { handleAddVisualCues } from "../../Utils/resizeHandlers";
 import "./Board.css";
 
 type mouseEvent = React.MouseEvent<HTMLCanvasElement, MouseEvent>;
@@ -114,6 +115,7 @@ const Board: React.FC = () => {
         cursor: selectedTools.cursor,
       };
       setElements([...elements, element]);
+      handleAddVisualCues(canvasRef, element)
     }
     canvasRef.current.style.cursor = "default";
     mouseWasMoved.current = false;
@@ -142,7 +144,7 @@ const Board: React.FC = () => {
     return () => {
       window.removeEventListener("resize", resizeClosure);
     };
-  }, [elements, canvasRef]);
+  }, [canvasRef]);
 
   return (
     <div className="w-full h-full bg-gray-100">
