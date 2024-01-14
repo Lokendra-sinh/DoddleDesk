@@ -2,7 +2,7 @@ import Toolbar from "../Toolbar/Toolbar"
 
 const Navbar = () => {
   return (
-    <div className="p-4 flex justify-between absolute w-full h-auto left-0 top-0 z-1000">
+    <div className="p-4 flex justify-between absolute w-full h-auto left-0 top-0 z-1000 bg-gray-200">
         <div className="">
             <h3 className="text-xl font-bold">DoddleDesk</h3>
         </div>
