@@ -13,7 +13,8 @@ import { drawCircle } from "../../Utils/drawingHelpers";
 import { drawEllipse } from "../../Utils/drawingHelpers";
 import { handleResize } from "../../Utils/canvasEventHandlers";
 import { initiateCanvas } from "../../Utils/canvasEventHandlers";
-import { handleAddVisualCues } from "../../Utils/resizeHandlers";
+import { AddVisualCueBalls } from "../../Utils/resizeHandlers";
+import { hideAllCueBalls } from "../../Utils/resizeHandlers";
 import "./Board.css";
 
 type mouseEvent = React.MouseEvent<HTMLCanvasElement, MouseEvent>;
@@ -27,9 +28,10 @@ const Board: React.FC = () => {
   const cornerRadius = 20;
   const [isDrawing, setIsDrawing] = useState<boolean>(false);
   const [selectedTools, setSelectedTool] = useRecoilState<toolTypes>(tools);
+  console.log("renreding board");
   const [elements, setElements] =
     useRecoilState<elementsContainer>(elementsAtom);
-
+ const [selectedElement, setSelectedElement] = useState<elementTypes | null>(null);
   const [startPosition, setStartPosition] = useState<position>({ x: 0, y: 0 });
   const [lastPosition, setLastPosition] = useState<position>({ x: 0, y: 0 });
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -43,6 +45,7 @@ const Board: React.FC = () => {
   function handleStartDrawing(e: mouseEvent) {
     console.log("inside mousemove");
     if (!isDrawing || !canvasRef.current) return;
+    console.log("now drawing");
     const lastX = e.clientX - (canvasRef.current.offsetLeft ?? 0);
     const lastY = e.clientY - (canvasRef.current.offsetTop ?? 0);
 
@@ -89,7 +92,9 @@ const Board: React.FC = () => {
 
   function handleInitiateDrawing(e: mouseEvent) {
     console.log("inside mousedown");
+    hideAllCueBalls();
     if (!canvasRef.current) return;
+    if(canvasRef.current.style.cursor !== "crosshair") return;
     const newX = e.clientX - (canvasRef.current.offsetLeft ?? 0);
     const newY = e.clientY - (canvasRef.current.offsetTop ?? 0);
     setStartPosition({ x: newX, y: newY });
@@ -103,8 +108,9 @@ const Board: React.FC = () => {
     console.log("inside mouseup");
     if (!isDrawing || !canvasRef.current) return;
     setIsDrawing(false);
+    let element: elementTypes | undefined;
     if(mouseWasMoved.current){
-      const element: elementTypes = {
+      element = {
         type: currentTool,
         startCoordinates: startPosition,
         endCoordinates: lastPosition,
@@ -115,41 +121,81 @@ const Board: React.FC = () => {
         cursor: selectedTools.cursor,
       };
       setElements([...elements, element]);
-      handleAddVisualCues(canvasRef, element)
     }
-    canvasRef.current.style.cursor = "default";
-    mouseWasMoved.current = false;
+
+      canvasRef.current.style.cursor = "default";
+      mouseWasMoved.current = false;
+      AddVisualCueBalls(canvasRef, element);
+  }
+
+
+  function handleVisualCueBalls(e: MouseEvent) {
+    let clickedElementId: number | null = null;
+    if (!canvasRef.current) return;
+    const clickedX = e.clientX - (canvasRef.current.offsetLeft ?? 0);
+    const clickedY = e.clientY - (canvasRef.current.offsetTop ?? 0);
+
+    elements.forEach((element, index) => {
+      if (
+        clickedX >= element.startCoordinates.x &&
+        clickedX <= element.endCoordinates.x &&
+        clickedY >= element.startCoordinates.y &&
+        clickedY <= element.endCoordinates.y
+      ) {
+        clickedElementId = index;
+      }
+    });
+
+    if (clickedElementId !== null) {
+      setSelectedElement(elements[clickedElementId]);
+      AddVisualCueBalls(canvasRef, elements[clickedElementId]);
+    } else {
+      setSelectedElement(null);
+      hideAllCueBalls();
+    }
+
   }
 
   useEffect(() => {
+    console.log("inside useEffect due to selectedTools change");
    if(!canvasRef.current) return;
-   if(!currentTool) return;
-    canvasRef.current.style.cursor = "crosshair";
+    if(!selectedTools.tools[currentTool as keyof typeof selectedTools.tools]) return;
+   canvasRef.current.style.cursor = "crosshair";
   },[selectedTools]);
 
 
   useEffect(() => {
+    console.log("inside useEffect due to elements change");
     if (!canvasRef.current) return;
     const ctx = canvasRef.current.getContext("2d");
     if (!ctx) return;
-
+    if(elements.length === 0) return;
     // Initialize and redraw canvas
     initiateCanvas(canvasRef);
+    console.log("redrawing elements: ", elements);
     redrawElements(canvasRef, elements);
+    // AddVisualCueBalls(canvasRef, elements, elements[elements.length - 1])
 
-    // Resize handling
+    const handleCanvasClick = (e: MouseEvent) => {
+      handleVisualCueBalls(e);
+    }
+
+    canvasRef.current.addEventListener("click", handleCanvasClick);
     const resizeClosure = () => handleResize(canvasRef, elements);
     window.addEventListener("resize", resizeClosure);
 
     return () => {
       window.removeEventListener("resize", resizeClosure);
+      canvasRef.current?.removeEventListener("click", handleCanvasClick);
     };
-  }, [canvasRef]);
+  }, [canvasRef, elements]);
 
   return (
     <div className="w-full h-full bg-gray-100">
       <Navbar />
       <canvas
+        width={window.innerWidth}
+        height={window.innerHeight}
         onMouseDown={handleInitiateDrawing}
         onMouseMove={handleStartDrawing}
         onMouseUp={handleStopDrawing}

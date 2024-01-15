@@ -66,7 +66,6 @@ const Toolbar = () => {
             <div className="absolute bg-white shadow-full rounded-md top-12 flex -left-6">
               <button
                 onClick={(e) => {
-                    e.currentTarget.style.cursor = "crosshair";
                     handleToolsSelection("circle")
                 }}
                 className="bg-transparent hover:bg-gray-100 rounded-md px-2 py-1"
@@ -75,7 +74,6 @@ const Toolbar = () => {
               </button>
               <button
                 onClick={(e) => { 
-                    e.currentTarget.style.cursor = "crosshair";
                     handleToolsSelection("ellipse")
                 }}
                 className="bg-transparent hover:bg-gray-100 rounded-md px-2 py-1"
@@ -84,7 +82,6 @@ const Toolbar = () => {
               </button>
               <button
                  onClick={(e) => {
-                    e.currentTarget.style.cursor = "crosshair";
                     handleToolsSelection("square")
                 }}
                 className="bg-transparent hover:bg-gray-100 rounded-md px-2 py-1"
@@ -93,7 +90,6 @@ const Toolbar = () => {
               </button>
               <button
                  onClick={(e) => {
-                    e.currentTarget.style.cursor = "crosshair";
                     handleToolsSelection("biSquare")
                 }}
                 className="bg-transparent hover:bg-gray-100 rounded-md px-2 py-1"
