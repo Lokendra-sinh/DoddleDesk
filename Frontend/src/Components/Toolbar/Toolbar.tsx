@@ -13,27 +13,41 @@ import { FaRegCircle } from "react-icons/fa";
 import { tools } from "../../Recoil/Atoms/tools";
 import { useRecoilState } from "recoil";
 import { toolTypes } from "../../Recoil/Atoms/tools";
+import { drawableElements } from "../../Recoil/Atoms/tools";
 import "./Toolbar.css";
+import { elementTypes } from "../../Recoil/Atoms/elements";
+import { elementsContainer } from "../../Recoil/Atoms/elements";
+import { elementsAtom } from "../../Recoil/Atoms/elements";
 
 const Toolbar = () => {
-  const [selectedTools, setSelectedTool] = useRecoilState<toolTypes>(tools);
+  const [selectedTool, setSelectedTool] = useRecoilState<toolTypes>(tools);
   const [isShapesMenuOpen, setIsShapesMenuOpen] = useState<boolean>(false);
-
+  const [elements, setElements] = useRecoilState<elementsContainer>(elementsAtom);
   const handleToolsSelection = (selectedTool: string) => {
-    setSelectedTool({
-      ...selectedTools,
-      tools: {
-        square: selectedTool === "square" ? true : false,
-        biSquare: selectedTool === "biSquare" ? true : false,
-        circle: selectedTool === "circle" ? true : false,
-        ellipse: selectedTool === "ellipse" ? true : false,
-        line: selectedTool === "line" ? true : false,
-        text: selectedTool === "text" ? true : false,
-        image: selectedTool === "image" ? true : false,
-        eraser: selectedTool === "eraser" ? true : false,
-      },
+    setSelectedTool(prevTools => {
+      // Copy the previous tools state
+      const updatedTools: drawableElements = { ...prevTools.tools };
+  
+      // Iterate and update each tool's value
+      Object.keys(updatedTools).forEach((tool: string) => {
+        updatedTools[tool as keyof drawableElements] = tool === selectedTool;
+      });
+  
+      return {
+        ...prevTools,
+        tools: updatedTools
+      };
+    });
+
+    setElements(prevElements => {
+      // Deep copy and update
+      return prevElements.map(element => ({
+        ...element,
+        active: false, // Set active to false
+      }));
     });
   };
+  
 
   return (
     <div className="bg-white rounded-md drop-shadow-xl p-2 relative plus-cursor">
@@ -65,7 +79,7 @@ const Toolbar = () => {
           {isShapesMenuOpen && (
             <div className="absolute bg-white shadow-full rounded-md top-12 flex -left-6">
               <button
-                onClick={(e) => {
+                onClick={() => {
                     handleToolsSelection("circle")
                 }}
                 className="bg-transparent hover:bg-gray-100 rounded-md px-2 py-1"
@@ -73,7 +87,7 @@ const Toolbar = () => {
                 <FaRegCircle className="text-2xl" />
               </button>
               <button
-                onClick={(e) => { 
+                onClick={() => { 
                     handleToolsSelection("ellipse")
                 }}
                 className="bg-transparent hover:bg-gray-100 rounded-md px-2 py-1"
@@ -81,15 +95,15 @@ const Toolbar = () => {
                 <TbOvalVertical className="text-2xl" />
               </button>
               <button
-                 onClick={(e) => {
-                    handleToolsSelection("square")
+                 onClick={() => {
+                    handleToolsSelection("rectangle")
                 }}
                 className="bg-transparent hover:bg-gray-100 rounded-md px-2 py-1"
               >
                 <MdOutlineSquare className="text-2xl" />
               </button>
               <button
-                 onClick={(e) => {
+                 onClick={() => {
                     handleToolsSelection("biSquare")
                 }}
                 className="bg-transparent hover:bg-gray-100 rounded-md px-2 py-1"

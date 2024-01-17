@@ -1,16 +1,18 @@
 import { atom } from 'recoil';
 
+export type drawableElements = {
+    rectangle: boolean,
+    biSquare: boolean,
+    circle: boolean,
+    ellipse: boolean,
+    line: boolean,
+    text: boolean,
+    image: boolean,
+    eraser: boolean,
+}
+
 export type toolTypes = {
-    tools: {
-        square: boolean,
-        biSquare: boolean,
-        circle: boolean,
-        ellipse: boolean,
-        line: boolean,
-        text: boolean,
-        image: boolean,
-        eraser: boolean,
-    }
+    tools: drawableElements,
     color: string,
     size: number,
     cursor: string,
@@ -21,7 +23,7 @@ export const tools = atom<toolTypes>({
     key: 'toolSelcted',
     default: {
         tools: {
-            square: false,
+            rectangle: false,
             biSquare: false,
             circle: false,
             ellipse: false,

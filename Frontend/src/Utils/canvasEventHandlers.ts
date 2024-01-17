@@ -1,6 +1,5 @@
 import React from "react";
 import { elementTypes } from "../Recoil/Atoms/elements";
-import { redrawElements } from "./drawingHelpers";
 import { toolTypes } from "../Recoil/Atoms/tools";
 
 type Position = {
@@ -21,7 +20,6 @@ export const handleResize = (
   canvasRef.current.width = window.innerWidth * dpi;
   canvasRef.current.height = window.innerHeight * dpi;
   ctx.scale(dpi, dpi);
-  redrawElements(canvasRef, elements);
 };
 
 export function initiateCanvas(canvasRef: React.RefObject<HTMLCanvasElement>) {

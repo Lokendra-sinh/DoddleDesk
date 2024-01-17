@@ -14,6 +14,8 @@ export type elementTypes = {
         size: number,
         cornerRadius? : number,
         cursor: string,
+        id: string,
+        active: boolean,
 }
 
 export type elementsContainer = elementTypes[];
