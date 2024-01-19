@@ -9,6 +9,7 @@ export function attachListeners(topLeftCueBall: HTMLDivElement, canvasRef: React
     let offsetToCenter = { x: 0, y: 0 };
     let dragStart = { x: 0, y: 0 };
     let dragEnd = { x: 0, y: 0 };
+    let currentActiveElementIndex: number;
 
     let overlayForDragging = document.querySelector(".overlay-for-dragging") as HTMLDivElement;
     if(!overlayForDragging) return;
@@ -23,7 +24,6 @@ export function attachListeners(topLeftCueBall: HTMLDivElement, canvasRef: React
         dragEnd.y = e.clientY - canvasRef.current.offsetTop - offsetToCenter.y;
 
         // Update the element's position
-        const currentActiveElementIndex = elementsOnCanvas.findIndex(element => element.id === activeElementId);
         elementsOnCanvas[currentActiveElementIndex].startCoordinates = {
             x: dragEnd.x,
             y: dragEnd.y,
@@ -36,6 +36,21 @@ export function attachListeners(topLeftCueBall: HTMLDivElement, canvasRef: React
         overlayForDragging.style.display = "none";
         document.body.removeEventListener("mousemove", handleMouseMove);
         document.body.removeEventListener("mouseup", handleMouseUp);
+        const currentElement = elementsOnCanvas[currentActiveElementIndex];
+        const { startCoordinates, endCoordinates } = currentElement;
+        const { x: startX, y: startY } = startCoordinates;
+        const { x: endX, y: endY } = endCoordinates;
+        if(startX > endX && startY > endY) {
+           elementsOnCanvas[currentActiveElementIndex].startCoordinates = {
+                x: endX,
+                y: endY,
+
+           };
+              elementsOnCanvas[currentActiveElementIndex].endCoordinates = {
+                 x: startX,
+                 y: startY,
+              };
+        }
         // Additional logic if needed on mouse up
     };
 
@@ -44,8 +59,8 @@ export function attachListeners(topLeftCueBall: HTMLDivElement, canvasRef: React
         if(!canvasRef.current) return;
         isResizing = true;
         e.stopPropagation();
+        currentActiveElementIndex = elementsOnCanvas.findIndex(element => element.id === activeElementId);
         overlayForDragging.style.display = "block";
-        
         const rect = topLeftCueBall.getBoundingClientRect();
         const centerOfCueBall = {
             x: rect.left + rect.width / 2,
