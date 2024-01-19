@@ -15,7 +15,6 @@ export function attachListeners(topMiddleCueBall: HTMLDivElement, canvasRef: Rea
         console.log("currently dragging");
         if (!isResizing || !canvasRef.current) return;
 
-        const newX = e.clientX - canvasRef.current.offsetLeft - offsetToCenter.x;
         const newY = e.clientY - canvasRef.current.offsetTop - offsetToCenter.y;
 
         const currentElement = elementsOnCanvas[currentActiveElementIndex];
