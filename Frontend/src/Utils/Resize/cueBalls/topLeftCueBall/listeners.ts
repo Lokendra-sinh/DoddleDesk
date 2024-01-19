@@ -82,7 +82,7 @@ export function attachListeners(topLeftCueBall: HTMLDivElement, canvasRef: React
               };
         }
 
-        
+
 
 
     };
@@ -94,6 +94,7 @@ export function attachListeners(topLeftCueBall: HTMLDivElement, canvasRef: React
         e.stopPropagation();
         currentActiveElementIndex = elementsOnCanvas.findIndex(element => element.id === activeElementId);
         overlayForDragging.style.display = "block";
+        overlayForDragging.style.cursor = "nw-resize";
         const rect = topLeftCueBall.getBoundingClientRect();
         const centerOfCueBall = {
             x: rect.left + rect.width / 2,
@@ -113,7 +114,7 @@ export function attachListeners(topLeftCueBall: HTMLDivElement, canvasRef: React
         document.body.addEventListener("mouseup", handleMouseUp);
     };
 
-    topLeftCueBall.addEventListener("mouseenter", () => topLeftCueBall.style.cursor = "nwse-resize");
+    topLeftCueBall.addEventListener("mouseenter", () => topLeftCueBall.style.cursor = "nw-resize");
     topLeftCueBall.addEventListener("mouseleave", () => topLeftCueBall.style.cursor = "default");
     topLeftCueBall.addEventListener("mousedown", handleMouseDown);
 }

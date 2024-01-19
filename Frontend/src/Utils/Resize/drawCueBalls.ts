@@ -1,5 +1,6 @@
 import { ElementTypes } from "../../Types/Types";
 import { drawTopLeftCueBall } from "./cueBalls/topLeftCueBall/draw";
+import { drawTopRightCueBall } from "./cueBalls/topRightCueBall/draw";
 
 const ballWidth = '10px';
 const ballHeight = '10px';
@@ -39,7 +40,7 @@ export function drawCueBalls(
 
   drawTopLeftCueBall(topLeftX, topLeftY, ballWidth, ballHeight, canvasRef);
   // drawTopMiddleCueBall(topMiddleX, topMiddleY, ballWidth, ballHeight, canvasRef);
-  // drawTopRightCueBall(topRightX, topRightY, ballWidth, ballHeight , canvasRef);
+  drawTopRightCueBall(topRightX, topRightY, ballWidth, ballHeight , canvasRef);
   // drawLeftMiddleCueBall(leftMiddleX, leftMiddleY, ballWidth, ballHeight , canvasRef);
   // drawRightMiddleCueBall(rightMiddleX, rightMiddleY, ballWidth, ballHeight , canvasRef);
   // drawBottomLeftCueBall(bottomLeftX, bottomLeftY, ballWidth, ballHeight , canvasRef);
