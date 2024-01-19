@@ -5,6 +5,8 @@ import { drawBottomRightCueBall } from "./cueBalls/bottomRightCueBall/draw";
 import { drawBottomLeftCueBall } from "./cueBalls/bottomLeftCueBall/draw";
 import { drawTopMiddleCueBall } from "./cueBalls/topMiddleCueBall/draw";
 import { drawBottomMiddleCueBall } from "./cueBalls/bottomMiddleCueBall/draw";
+import { drawLeftMiddleCueBall } from "./cueBalls/leftMiddleCueBall/draw";
+import { drawRightMiddleCueBall } from "./cueBalls/rightMiddleCueBall/draw";
 
 const ballWidth = '10px';
 const ballHeight = '10px';
@@ -45,8 +47,8 @@ export function drawCueBalls(
   drawTopLeftCueBall(topLeftX, topLeftY, ballWidth, ballHeight, canvasRef);
   drawTopMiddleCueBall(topMiddleX, topMiddleY, ballWidth, ballHeight, canvasRef);
   drawTopRightCueBall(topRightX, topRightY, ballWidth, ballHeight , canvasRef);
-  // drawLeftMiddleCueBall(leftMiddleX, leftMiddleY, ballWidth, ballHeight , canvasRef);
-  // drawRightMiddleCueBall(rightMiddleX, rightMiddleY, ballWidth, ballHeight , canvasRef);
+  drawLeftMiddleCueBall(leftMiddleX, leftMiddleY, ballWidth, ballHeight , canvasRef);
+  drawRightMiddleCueBall(rightMiddleX, rightMiddleY, ballWidth, ballHeight , canvasRef);
   drawBottomLeftCueBall(bottomLeftX, bottomLeftY, ballWidth, ballHeight , canvasRef);
   drawBottomMiddleCueBall(bottomMiddleX, bottomMiddleY, ballWidth, ballHeight , canvasRef);
   drawBottomRightCueBall(bottomRightX, bottomRightY, ballWidth, ballHeight , canvasRef);
