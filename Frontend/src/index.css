@@ -36,6 +36,10 @@ body {
 
 }
 
+.dragging-cursor {
+  cursor: nwse-resize !important;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

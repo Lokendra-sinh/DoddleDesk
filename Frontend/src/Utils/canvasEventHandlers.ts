@@ -1,17 +1,9 @@
 import React from "react";
-import { elementTypes } from "../Recoil/Atoms/elements";
-import { toolTypes } from "../Recoil/Atoms/tools";
+import { ElementTypes } from "../Types/Types";
 
-type Position = {
-  x: number;
-  y: number;
-};
-
-type mouseEvent = React.MouseEvent<HTMLCanvasElement, MouseEvent>;
 
 export const handleResize = (
   canvasRef: React.RefObject<HTMLCanvasElement>,
-  elements: elementTypes[],
 ) => {
   if (!canvasRef.current) return;
   const ctx = canvasRef.current.getContext("2d");

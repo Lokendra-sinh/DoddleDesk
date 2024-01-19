@@ -1,119 +1,162 @@
 import { useState, useEffect, useRef } from "react";
 import Navbar from "../Navbar/Navbar";
-import { tools } from "../../Recoil/Atoms/tools";
 import { useRecoilState } from "recoil";
-import { toolTypes } from "../../Recoil/Atoms/tools";
-import { drawableElements } from "../../Recoil/Atoms/tools";
-import { elementTypes } from "../../Recoil/Atoms/elements";
-import { elementsContainer } from "../../Recoil/Atoms/elements";
-import { elementsAtom } from "../../Recoil/Atoms/elements";
-import { handleCanvasDrawing } from "../../Utils/handleCanvasDrawing";
-import { drawElements } from "../../Utils/drawElements";
+import { elementsAtom, activeElementIdAtom } from "../../Recoil/Atoms/elements";
+import {
+  handleActiveElementDrawing,
+  handleClick,
+} from "../../Utils/handleCanvasDrawing";
+import { drawElement } from "../../Utils/drawElements";
 import { drawBoundingBoxAndCueBalls } from "../../Utils/resizeElements/drawBoundingBoxAndCueBalls";
+import { setActiveBoxAndCueBalls } from "../../Utils/handleActiveElements/setActiveBoxAndCueBalls";
 import { handleResize } from "../../Utils/canvasEventHandlers";
 import { initiateCanvas } from "../../Utils/canvasEventHandlers";
-import "./Board.css";
+import {
+  BoundingBoxAndCueBalls,
+  ElementsContainer,
+  ElementTypes,
+  ToolFlags,
+  ToolProperties,
+} from "../../Types/Types";
+import { currentTool } from "../../Recoil/Atoms/tools";
+import { handleCanvasToolActions } from "../../Utils/handleCanvasToolActions";
+import { drawResizeHandlesAndBoundingBox } from "../../Utils/Resize/drawResizeHandlesAndBoundingBox";
 
-type mouseEvent = React.MouseEvent<HTMLCanvasElement, MouseEvent>;
-type position = {
-  x: number;
-  y: number;
+
+export let elementsOnCanvas: ElementsContainer = [];
+export let activeElementId: string = "";
+
+export const setActiveElementId = (id: string) => {
+  activeElementId = id;
 };
 
-  const Board: React.FC = () => {
-    console.log("inside board");
-    const [selectedTool, setSelectedTool] = useRecoilState<toolTypes>(tools);
-    console.log("renreding board");
-    const [elements, setElements] =
-      useRecoilState<elementsContainer>(elementsAtom);
-    const canvasRef = useRef<HTMLCanvasElement | null>(null);
+export const getActiveElementId = () => {
+  return activeElementId;
+};
 
-    const currentTool: string | undefined = Object.keys(selectedTool.tools).find(
-      (key) => selectedTool.tools[key as keyof drawableElements] === true
-    );
-    console.log("currentTool: ", currentTool);
+export const setElementsOnCanvas = (elements: ElementsContainer) => {
+  elementsOnCanvas = elements;
+};
 
-    let canvasElement = useRef<elementTypes>({
-      type: "",
-      startCoordinates: { x: 0, y: 0 },
-      endCoordinates: { x: 0, y: 0 },
-      color: "",
-      size: 0,
-      cursor: "",
-      id: "",
-      active: false,
-    });
-
-    let animationFrameId: number | null = null;
-    // let selectedElementId = useRef<string | null>("");
+export const getElementsOnCanvas = () => {
+  return elementsOnCanvas;  
+};
 
 
-    const resizeClosure = () => handleResize(canvasRef, elements);
 
-    useEffect(() => {
-      console.log(elements); // Check if elements are updated correctly
-    }, [elements]);
+const Board: React.FC = () => {
+  console.log("inside board");
+  const [selectedTool, setSelectedTool] = useRecoilState<string>(currentTool);
+  // const [activeElementId, setActiveElementId] = useState<string>("");
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  console.log("selectedTool: ", selectedTool);
+
+  // let elementsOnCanvas = useRef<ElementsContainer>([]);
+
+  let activeBoxAndCueBalls = useRef<BoundingBoxAndCueBalls>({
+    boundingBox: {
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0,
+    },
+    cueBalls: {
+      topLeft: {
+        x: 0,
+        y: 0,
+      },
+      topRight: {
+        x: 0,
+        y: 0,
+      },
+      bottomLeft: {
+        x: 0,
+        y: 0,
+      },
+      bottomRight: {
+        x: 0,
+        y: 0,
+      },
+      topMiddle: {
+        x: 0,
+        y: 0,
+      },
+      bottomMiddle: {
+        x: 0,
+        y: 0,
+      },
+      leftMiddle: {
+        x: 0,
+        y: 0,
+      },
+      rightMiddle: {
+        x: 0,
+        y: 0,
+      },
+    },
+  });
+
+  let animationFrameId: number | null = null;
+  const resizeClosure = () => handleResize(canvasRef);
+
+  useEffect(() => {
+    if (!canvasRef.current) return;
+    const ctx = canvasRef.current.getContext("2d");
+    if (!ctx) return;
+    console.log("inside useEffect due to selectedTool change");
     
+    const handleCanvasClick = (e: MouseEvent) => {
+      handleClick(e, canvasRef);
+    };
+    if(selectedTool === "select") canvasRef.current.addEventListener("click", handleCanvasClick);
 
-    useEffect(() => {
-      console.log("currentTool in useEfect: ", currentTool);
-      if (!canvasRef.current) return;
-      if(!currentTool) return;
-      // selectedElementId.current = "";
-      if (currentTool === "eraser") {
-        canvasRef.current.style.cursor = "none";
-      } else {
-        canvasRef.current.style.cursor = "crosshair";
-        handleCanvasDrawing(
-          canvasRef,
-          setElements,
-          currentTool,
-          canvasElement,
-          // selectedElementId
-        );
+    function animate() {
+      if (!ctx) return;
+      animationFrameId = requestAnimationFrame(animate);
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+
+      if (elementsOnCanvas.length > 0) {
+        elementsOnCanvas.forEach((element) => {
+          drawElement(ctx, element);
+          if (element.id === activeElementId) {
+            // drawBoundingBoxAndCueBalls(ctx, element, activeBoxAndCueBalls);
+            drawResizeHandlesAndBoundingBox(element, canvasRef);
+          }
+        });
       }
-    }, [currentTool]);
+    }
+
+    animate();
 
 
-    useEffect(() => {
-      console.log("inside useEffect due to elements change");
+    const cleanup = handleCanvasToolActions(
+      canvasRef,
+      selectedTool,
+      setSelectedTool,
+      activeBoxAndCueBalls,
+    );
+    return () => {
+      if(cleanup) cleanup();
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
       if (canvasRef.current) {
-        const ctx = canvasRef.current.getContext("2d");
-        if (!ctx) return;
-        initiateCanvas(canvasRef);
-        window.addEventListener("resize", resizeClosure);
-
-        console.log("elements are: ", canvasElement);
-
-        function animate() {
-          if (!ctx) return;
-          animationFrameId = requestAnimationFrame(animate);
-          ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-
-          if(elements.length > 0){
-            elements.forEach((element) => {
-              drawElements(ctx, element);
-              if(element.active){
-                drawBoundingBoxAndCueBalls(ctx, element);
-              }
-            });
-          }
-
-          if(canvasElement.current){
-            drawElements(ctx, canvasElement.current);
-          }
-        }
-
-        animate();
+        canvasRef.current.removeEventListener("click", handleCanvasClick);
       }
+    }
+  }, [selectedTool]);
 
-      return () => {
-        if (animationFrameId) cancelAnimationFrame(animationFrameId);
-        if (canvasRef.current) {
-          window.removeEventListener("resize", resizeClosure);
-        }
-      };
-    }, [canvasRef, elements]);
+  useEffect(() => {
+    console.log("inside useEffect due to elements change");
+    if (!canvasRef.current) return;
+    const ctx = canvasRef.current.getContext("2d");
+    if (!ctx) return;
+    initiateCanvas(canvasRef);
+    window.addEventListener("resize", resizeClosure);
+
+    return () => {
+      window.removeEventListener("resize", resizeClosure);
+    }
+  }, []);
 
   return (
     <div className="w-full h-full bg-gray-100">

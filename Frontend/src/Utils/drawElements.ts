@@ -1,11 +1,11 @@
 import React from "react";
-import { elementTypes, elementsContainer } from "../Recoil/Atoms/elements";
+import { ElementTypes } from "../Types/Types";
 import { drawRectangle } from "./shapes/rectangle";
 import { drawCircle } from "./shapes/circle";
 import { drawEllipse } from "./shapes/ellipse";
 import { drawBiSquare } from "./shapes/biSquare";
 
-export function drawElements(ctx: CanvasRenderingContext2D, element: elementTypes) {
+export function drawElement(ctx: CanvasRenderingContext2D, element: ElementTypes) {
   if (!ctx) return;
 
    switch(element.type) {
