@@ -5,92 +5,112 @@ import { PiTextTBold } from "react-icons/pi";
 import { MdOutlineSquare } from "react-icons/md";
 import { BiSquareRounded } from "react-icons/bi";
 import { TbOvalVertical } from "react-icons/tb";
+import { LiaMousePointerSolid } from "react-icons/lia";
+import { PiHandGrabbingBold } from "react-icons/pi";
 import { LuShapes } from "react-icons/lu";
 import { SlActionUndo } from "react-icons/sl";
 import { LuPencil } from "react-icons/lu";
 import { SlActionRedo } from "react-icons/sl";
 import { FaRegCircle } from "react-icons/fa";
-import { tools } from "../../Recoil/Atoms/tools";
+import { currentTool } from "../../Recoil/Atoms/tools";
+import { activeElementIdAtom } from "../../Recoil/Atoms/elements";
 import { useRecoilState } from "recoil";
-import { toolTypes } from "../../Recoil/Atoms/tools";
-import "./Toolbar.css";
 
-const Toolbar = () => {
-  const [selectedTools, setSelectedTool] = useRecoilState<toolTypes>(tools);
+
+const Toolbar: React.FC= () => {
+  const [selectedTool, setSelectedTool] = useRecoilState<string>(currentTool);
   const [isShapesMenuOpen, setIsShapesMenuOpen] = useState<boolean>(false);
 
-  const handleToolsSelection = (selectedTool: string) => {
-    setSelectedTool({
-      ...selectedTools,
-      tools: {
-        square: selectedTool === "square" ? true : false,
-        biSquare: selectedTool === "biSquare" ? true : false,
-        circle: selectedTool === "circle" ? true : false,
-        ellipse: selectedTool === "ellipse" ? true : false,
-        line: selectedTool === "line" ? true : false,
-        text: selectedTool === "text" ? true : false,
-        image: selectedTool === "image" ? true : false,
-        eraser: selectedTool === "eraser" ? true : false,
-      },
-    });
+  const setToolAndActiveElementId = (tool: string) => {
+    setSelectedTool(tool);
+    // setActiveElementId("");
   };
 
   return (
     <div className="bg-white rounded-md drop-shadow-xl p-2 relative plus-cursor">
       <div className="flex items-center justify-center gap-2">
         <button
-          onClick={() => handleToolsSelection("pencil")}
-          className="bg-transparent hover:bg-gray-100 rounded-md px-2 py-1"
+          onClick={() => setToolAndActiveElementId("select")}
+          className={`hover:bg-gray-100 rounded-md px-2 py-1 ${
+            selectedTool == "select" ? "bg-purple-200 hover:bg-purple-200" : "bg-transparent"
+          }`}
+        >
+          <LiaMousePointerSolid className="text-2xl" />
+        </button>
+        <button
+          onClick={() => setToolAndActiveElementId("grab")}
+          className={`hover:bg-gray-100 rounded-md px-2 py-1 ${
+            selectedTool == "grab" ? "bg-purple-200 hover:bg-purple-200" : "bg-transparent"
+          }`}
+        >
+          <PiHandGrabbingBold className="text-2xl" />
+        </button>
+        <button
+          onClick={() => setToolAndActiveElementId("pencil")}
+          className={`hover:bg-gray-100 rounded-md px-2 py-1 ${
+            selectedTool == "pencil" ? "bg-purple-200 hover:bg-purple-200" : "bg-transparent"
+          }`}
         >
           <LuPencil className="text-2xl" />
         </button>
         <button
-          onClick={() => handleToolsSelection("eraser")}
-          className="bg-transparent hover:bg-gray-100 rounded-md px-2 py-1"
+          onClick={() => setToolAndActiveElementId("eraser")}
+          className={`hover:bg-gray-100 rounded-md px-2 py-1 ${
+            selectedTool == "eraser" ? "bg-purple-200 hover:bg-purple-200" : "bg-transparent"
+          }`}
         >
           <LuEraser className="text-2xl" />
         </button>
         <button
-          onClick={() => handleToolsSelection("text")}
-          className="bg-transparent hover:bg-gray-100 rounded-md px-2 py-1"
+          onClick={() => setToolAndActiveElementId("text")}
+          className={`hover:bg-gray-100 rounded-md px-2 py-1 ${
+            selectedTool == "text" ? "bg-purple-200 hover:bg-purple-200" : "bg-transparent"
+          }`}
         >
           <PiTextTBold className="text-2xl" />
         </button>
 
         <button
           onClick={() => setIsShapesMenuOpen(!isShapesMenuOpen)}
-          className="bg-transparent hover:bg-gray-100 rounded-md px-2 py-1 relative"
+          className={`hover:bg-gray-100 rounded-md px-2 py-1 relative ${
+            selectedTool == "circle" ||
+            selectedTool == "ellipse" ||
+            selectedTool == "rectangle" ||
+            selectedTool == "biSquare"
+              ? "bg-purple-200 hover:bg-purple-200"
+              : "bg-transparent"
+          }`}
         >
           <LuShapes className="text-2xl" />
           {isShapesMenuOpen && (
             <div className="absolute bg-white shadow-full rounded-md top-12 flex -left-6">
               <button
-                onClick={(e) => {
-                    handleToolsSelection("circle")
+                onClick={() => {
+                  setToolAndActiveElementId("circle");
                 }}
                 className="bg-transparent hover:bg-gray-100 rounded-md px-2 py-1"
               >
                 <FaRegCircle className="text-2xl" />
               </button>
               <button
-                onClick={(e) => { 
-                    handleToolsSelection("ellipse")
+                onClick={() => {
+                  setToolAndActiveElementId("ellipse");
                 }}
                 className="bg-transparent hover:bg-gray-100 rounded-md px-2 py-1"
               >
                 <TbOvalVertical className="text-2xl" />
               </button>
               <button
-                 onClick={(e) => {
-                    handleToolsSelection("square")
+                onClick={() => {
+                  setToolAndActiveElementId("rectangle");
                 }}
                 className="bg-transparent hover:bg-gray-100 rounded-md px-2 py-1"
               >
                 <MdOutlineSquare className="text-2xl" />
               </button>
               <button
-                 onClick={(e) => {
-                    handleToolsSelection("biSquare")
+                onClick={() => {
+                  setToolAndActiveElementId("biSquare");
                 }}
                 className="bg-transparent hover:bg-gray-100 rounded-md px-2 py-1"
               >
@@ -101,13 +121,13 @@ const Toolbar = () => {
         </button>
 
         <button
-          onClick={() => handleToolsSelection("undo")}
-          className="bg-transparent hover:bg-gray-100 rounded-md px-2 py-1"
+          onClick={() => setToolAndActiveElementId("undo")}
+          className={`bg-transparent hover:bg-gray-100 rounded-md px-2 py-1`}
         >
           <SlActionUndo className="text-2xl" />
         </button>
         <button
-          onClick={() => handleToolsSelection("redo")}
+          onClick={() => setToolAndActiveElementId("redo")}
           className="bg-transparent hover:bg-gray-100 rounded-md px-2 py-1"
         >
           <SlActionRedo className="text-2xl" />

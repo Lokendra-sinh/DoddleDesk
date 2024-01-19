@@ -1,6 +1,7 @@
+import React from "react";
 import Toolbar from "../Toolbar/Toolbar"
 
-const Navbar = () => {
+const Navbar: React.FC = () => {
   return (
     <div className="p-4 flex justify-between absolute w-full h-auto left-0 top-0 z-1000 bg-gray-200">
         <div className="">

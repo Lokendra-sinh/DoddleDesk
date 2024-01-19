@@ -1,37 +1,32 @@
 import { atom } from 'recoil';
+import { ToolFlags, ToolProperties } from '../../Types/Types';
 
-export type toolTypes = {
-    tools: {
-        square: boolean,
-        biSquare: boolean,
-        circle: boolean,
-        ellipse: boolean,
-        line: boolean,
-        text: boolean,
-        image: boolean,
-        eraser: boolean,
-    }
-    color: string,
-    size: number,
-    cursor: string,
 
-}
-
-export const tools = atom<toolTypes>({
-    key: 'toolSelcted',
+export const toolFlags = atom<ToolFlags>({
+    key: 'toolFlags',
     default: {
-        tools: {
-            square: false,
-            biSquare: false,
-            circle: false,
-            ellipse: false,
-            line: false,
-            text: false,
-            image: false,
-            eraser: false,
-        },
-        color: 'black',
-        size: 2,
-        cursor: 'plus',
+        rectangle: false,
+        biSquare: false,
+        circle: false,
+        ellipse: false,
+        line: false,
+        pencil: false,
+        eraser: false,
+        text: false,
+        select: true,
+        grab: false,
     }
 });
+
+export const toolProperties = atom<ToolProperties>({
+    key: 'toolProperties',
+    default: {
+        color: 'black',
+        size: 2,
+    }
+});
+
+export const currentTool = atom<string>({
+    key: 'currentTool',
+    default: 'select',
+})

@@ -1,25 +1,14 @@
 import { atom } from 'recoil';
-
-type position = {
-    x: number,
-    y: number,
-
-}
-
-export type elementTypes = {
-        type: string | undefined,
-        startCoordinates: position,
-        endCoordinates: position,
-        color: string,
-        size: number,
-        cornerRadius? : number,
-        cursor: string,
-}
-
-export type elementsContainer = elementTypes[];
+import { ElementsContainer } from '../../Types/Types';
 
 
-export const elementsAtom = atom<elementsContainer>({
+
+export const elementsAtom = atom<ElementsContainer>({
     key: 'elements',
     default: [],
+})
+
+export const activeElementIdAtom = atom<string>({
+    key: 'activeElementId',
+    default: '',
 })
