@@ -42,7 +42,18 @@ export const getElementsOnCanvas = () => {
   return elementsOnCanvas;  
 };
 
+const overlayForDrag = document.createElement("div");
+overlayForDrag.style.position = "fixed";
+overlayForDrag.style.top = "0";
+overlayForDrag.style.left = "0";
+overlayForDrag.style.width = "100vw";
+overlayForDrag.style.height = "100vh";
+overlayForDrag.style.cursor = "nwse-resize";
+overlayForDrag.style.zIndex = "9999";
+overlayForDrag.style.display = "none";
+overlayForDrag.className = "overlay-for-dragging";
 
+document.body.appendChild(overlayForDrag);
 
 const Board: React.FC = () => {
   console.log("inside board");

@@ -10,6 +10,9 @@ export function attachListeners(topLeftCueBall: HTMLDivElement, canvasRef: React
     let dragStart = { x: 0, y: 0 };
     let dragEnd = { x: 0, y: 0 };
 
+    let overlayForDragging = document.querySelector(".overlay-for-dragging") as HTMLDivElement;
+    if(!overlayForDragging) return;
+
     const handleMouseMove = (e: MouseEvent) => {
         console.log("currently dragging");
         if (!isResizing || !canvasRef.current) return;
@@ -30,6 +33,7 @@ export function attachListeners(topLeftCueBall: HTMLDivElement, canvasRef: React
     const handleMouseUp = () => {
         console.log("stop dragging");
         isResizing = false;
+        overlayForDragging.style.display = "none";
         document.body.removeEventListener("mousemove", handleMouseMove);
         document.body.removeEventListener("mouseup", handleMouseUp);
         // Additional logic if needed on mouse up
@@ -40,7 +44,7 @@ export function attachListeners(topLeftCueBall: HTMLDivElement, canvasRef: React
         if(!canvasRef.current) return;
         isResizing = true;
         e.stopPropagation();
-       
+        overlayForDragging.style.display = "block";
         
         const rect = topLeftCueBall.getBoundingClientRect();
         const centerOfCueBall = {
