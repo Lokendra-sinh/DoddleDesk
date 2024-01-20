@@ -1,14 +1,6 @@
 import React from "react";
-import { BoundingBoxAndCueBalls, ElementsContainer } from "../Types/Types";
-import { findActiveCueBall } from "./Resize/findActiveCueBall";
-import { drawBoundingBoxAndCueBalls } from "./resizeElements/drawBoundingBoxAndCueBalls";
+import { ElementsContainer } from "../Types/Types";
 import { handleActiveElementDrawing } from "./handleCanvasDrawing";
-
-import {
-  elementsOnCanvas,
-  setElementsOnCanvas,
-  getElementsOnCanvas,
-} from "../../src/Components/Board/Board";
 
 
 type SetActiveElementIdType = (id: string) => void;
@@ -18,7 +10,6 @@ export const handleCanvasToolActions = (
   canvasRef: React.RefObject<HTMLCanvasElement>,
   selectedTool: string,
   setSelectedTool: React.Dispatch<React.SetStateAction<string>>,
-  activeElementId: string | "",
   setActiveElementId: SetActiveElementIdType,
   setRecoilElements: React.Dispatch<React.SetStateAction<ElementsContainer>>,
 ) => {

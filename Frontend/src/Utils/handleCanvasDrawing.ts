@@ -1,8 +1,11 @@
 import React from "react";
 import { v4 as uuidv4 } from "uuid";
-import { ElementsContainer, ElementTypes, ToolFlags } from "../Types/Types";
+import { ElementsContainer, ElementTypes} from "../Types/Types";
 
-import { elementsOnCanvas, setElementsOnCanvas } from "../../src/Components/Board/Board";
+import {
+  elementsOnCanvas,
+  setElementsOnCanvas,
+} from "../../src/Components/Board/Board";
 
 type SetActiveElementIdType = (id: string) => void;
 
@@ -12,11 +15,13 @@ export function handleActiveElementDrawing(
   selectedTool: string,
   setSelectedTool: React.Dispatch<React.SetStateAction<string>>,
   setActiveElementId: SetActiveElementIdType,
-  setRecoilElements: React.Dispatch<React.SetStateAction<ElementsContainer>>,
+  setRecoilElements: React.Dispatch<React.SetStateAction<ElementsContainer>>
 ) {
-  console.log("drawing element with selectedTool: ", selectedTool);
+  console.log("initiated drag");
   if (!canvasRef.current) return;
-  let isDragging = true;
+  let isDragging = false;
+  let minDistance = 10;
+  let elementAdded = false;
   let currentElementIndex = elementsOnCanvas.length;
   let currentElement: ElementTypes = {
     type: selectedTool,
@@ -35,43 +40,54 @@ export function handleActiveElementDrawing(
     active: false,
   };
 
-  elementsOnCanvas.push(currentElement);
-  
   const onMouseMove = (e: MouseEvent) => {
-    if (!isDragging) return;
-    e.stopPropagation();
-    if(currentElementIndex === undefined) return;
-
-    elementsOnCanvas[currentElementIndex].endCoordinates = {
-      x: e.clientX - canvasRef.current!.offsetLeft,
-      y: e.clientY - canvasRef.current!.offsetTop,
-    };
-    
+    const endX = e.clientX - canvasRef.current!.offsetLeft;
+    const endY = e.clientY - canvasRef.current!.offsetTop;
+    const distanceMoved = Math.sqrt(
+      (endX - currentElement.startCoordinates.x) ** 2 +
+        (endY - currentElement.startCoordinates.y) ** 2
+    );
+    console.log("distanceMoved: ", distanceMoved);
+    if (distanceMoved >= minDistance) {
+      if (!elementAdded) {
+        elementsOnCanvas.push(currentElement);
+        currentElementIndex = elementsOnCanvas.length - 1;
+        elementAdded = true;
+      }
+      isDragging = true;
+      console.log("currently dragging");
+      elementsOnCanvas[currentElementIndex].endCoordinates = {
+        x: endX,
+        y: endY,
+      };
+    }
   };
 
   const onMouseUp = (e: MouseEvent) => {
-    e.stopPropagation();
-    if (!canvasRef.current) return;
+    if (elementAdded) {
+      canvasRef.current!.style.cursor = "default";
+      setActiveElementId(elementsOnCanvas[currentElementIndex].id);
+      setSelectedTool("select");
+      setRecoilElements(prevElements => [...prevElements, elementsOnCanvas[currentElementIndex]]);
+      console.log("finished dragging");
+    } else {
+      console.log("no dragging occurred");
+    }
+    canvasRef.current!.removeEventListener("mousemove", onMouseMove);
+    canvasRef.current!.removeEventListener("mouseup", onMouseUp);
     isDragging = false;
-    canvasRef.current.removeEventListener("mousemove", onMouseMove);
-    canvasRef.current.removeEventListener("mouseup", onMouseUp);
-    canvasRef.current.style.cursor = "default";
-    setActiveElementId(elementsOnCanvas[currentElementIndex!].id);
-    setSelectedTool("select");
-    setRecoilElements(prevElements => [...prevElements, elementsOnCanvas[currentElementIndex!]]);
+    elementAdded = false;
   };
-    canvasRef.current.addEventListener("mousemove", onMouseMove);
-    canvasRef.current.addEventListener("mouseup", onMouseUp);
-
+  canvasRef.current.addEventListener("mousemove", onMouseMove);
+  canvasRef.current.addEventListener("mouseup", onMouseUp);
 }
-
 
 export const handleClick = (
   e: MouseEvent,
   canvasRef: React.RefObject<HTMLCanvasElement>,
   setActiveElementId: SetActiveElementIdType,
   setSelectedTool: React.Dispatch<React.SetStateAction<string>>,
-  setRecoilElements: React.Dispatch<React.SetStateAction<ElementsContainer>>,
+  setRecoilElements: React.Dispatch<React.SetStateAction<ElementsContainer>>
 ) => {
   console.log("inside handleClick");
   if (!canvasRef.current) return;
@@ -101,21 +117,26 @@ export const handleClick = (
     }
   }
 
-  if(clickedElementIndex === undefined || clickedElement === undefined || clickedElementId === undefined){
+  if (
+    clickedElementIndex === undefined ||
+    clickedElement === undefined ||
+    clickedElementId === undefined
+  ) {
     console.log("no element was clicked");
     setActiveElementId("");
-    setRecoilElements(prevElements => [...prevElements]);
+    setRecoilElements((prevElements) => [...prevElements]);
     return;
   }
   setActiveElementId(clickedElementId);
-  setRecoilElements(prevElements => {
+  setRecoilElements((prevElements) => {
     // Check if the element is already in the state
-    const isElementAlreadyInState = prevElements.some(element => element.id === clickedElementId);
+    const isElementAlreadyInState = prevElements.some(
+      (element) => element.id === clickedElementId
+    );
     if (!isElementAlreadyInState) {
       // Add the new element if it's not already present
       return [...prevElements, clickedElement!];
     }
     return prevElements; // Return the existing state if the element is already present
   });
-
 };

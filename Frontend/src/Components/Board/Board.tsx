@@ -100,7 +100,6 @@ const Board: React.FC = () => {
       canvasRef,
       selectedTool,
       setSelectedTool,
-      activeElementId,
       setActiveElementId,
       setRecoilElements,
     );
