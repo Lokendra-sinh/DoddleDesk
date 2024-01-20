@@ -8,8 +8,8 @@ const MARGIN_GAP = 5;
 export function drawResizeHandlesAndBoundingBox(
   element: ElementTypes,
   canvasRef: React.RefObject<HTMLCanvasElement>,
+  activeElementId: string | "",
 ) {
-  
     let boundingBox = document.querySelector('.bounding-box') as HTMLDivElement;
     if (!boundingBox) {
       boundingBox = document.createElement("div");
@@ -56,7 +56,7 @@ export function drawResizeHandlesAndBoundingBox(
     boundingBox.style.display = "block";
   
     // Draw the resize cue balls
-    drawCueBalls(topLeftX, topLeftY, width, height, canvasRef);
+    drawCueBalls(topLeftX, topLeftY, width, height, canvasRef, activeElementId);
   }
 
   

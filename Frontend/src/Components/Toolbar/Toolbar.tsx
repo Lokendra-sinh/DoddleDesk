@@ -13,17 +13,17 @@ import { LuPencil } from "react-icons/lu";
 import { SlActionRedo } from "react-icons/sl";
 import { FaRegCircle } from "react-icons/fa";
 import { currentTool } from "../../Recoil/Atoms/tools";
-import { activeElementIdAtom } from "../../Recoil/Atoms/elements";
 import { useRecoilState } from "recoil";
+import { setActiveElementId } from "../Board/Board";
 
 
-const Toolbar: React.FC= () => {
+const Toolbar: React.FC = () => {
   const [selectedTool, setSelectedTool] = useRecoilState<string>(currentTool);
   const [isShapesMenuOpen, setIsShapesMenuOpen] = useState<boolean>(false);
 
   const setToolAndActiveElementId = (tool: string) => {
-    setSelectedTool(tool);
-    // setActiveElementId("");
+    setActiveElementId("");
+    setSelectedTool(prevTool => tool);
   };
 
   return (

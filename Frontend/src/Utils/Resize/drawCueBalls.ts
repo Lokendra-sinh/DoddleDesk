@@ -18,6 +18,7 @@ export function drawCueBalls(
     width: number,
     height: number,
     canvasRef: React.RefObject<HTMLCanvasElement>,
+    activeElementId: string | "",
 ) {
   
   const topLeftX = x - ballRadius;
@@ -44,18 +45,13 @@ export function drawCueBalls(
   const bottomRightX = x + width - ballRadius;
   const bottomRightY = y + height - ballRadius;
 
-  drawTopLeftCueBall(topLeftX, topLeftY, ballWidth, ballHeight, canvasRef);
-  drawTopMiddleCueBall(topMiddleX, topMiddleY, ballWidth, ballHeight, canvasRef);
-  drawTopRightCueBall(topRightX, topRightY, ballWidth, ballHeight , canvasRef);
-  drawLeftMiddleCueBall(leftMiddleX, leftMiddleY, ballWidth, ballHeight , canvasRef);
-  drawRightMiddleCueBall(rightMiddleX, rightMiddleY, ballWidth, ballHeight , canvasRef);
-  drawBottomLeftCueBall(bottomLeftX, bottomLeftY, ballWidth, ballHeight , canvasRef);
-  drawBottomMiddleCueBall(bottomMiddleX, bottomMiddleY, ballWidth, ballHeight , canvasRef);
-  drawBottomRightCueBall(bottomRightX, bottomRightY, ballWidth, ballHeight , canvasRef);
-
-
-
-  
-  
+  drawTopLeftCueBall(topLeftX, topLeftY, ballWidth, ballHeight, canvasRef, activeElementId);
+  drawTopMiddleCueBall(topMiddleX, topMiddleY, ballWidth, ballHeight, canvasRef, activeElementId);
+  drawTopRightCueBall(topRightX, topRightY, ballWidth, ballHeight , canvasRef, activeElementId);
+  drawLeftMiddleCueBall(leftMiddleX, leftMiddleY, ballWidth, ballHeight , canvasRef, activeElementId);
+  drawRightMiddleCueBall(rightMiddleX, rightMiddleY, ballWidth, ballHeight , canvasRef, activeElementId);
+  drawBottomLeftCueBall(bottomLeftX, bottomLeftY, ballWidth, ballHeight , canvasRef, activeElementId);
+  drawBottomMiddleCueBall(bottomMiddleX, bottomMiddleY, ballWidth, ballHeight , canvasRef, activeElementId);
+  drawBottomRightCueBall(bottomRightX, bottomRightY, ballWidth, ballHeight , canvasRef, activeElementId);
 
 }
