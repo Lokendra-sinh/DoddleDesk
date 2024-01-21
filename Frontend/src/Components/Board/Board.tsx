@@ -2,21 +2,15 @@ import { useState, useEffect, useRef } from "react";
 import Navbar from "../Navbar/Navbar";
 import { useRecoilState } from "recoil";
 import { elementsAtom } from "../../Recoil/Atoms/elements";
-import {
-  handleActiveElementDrawing,
-  handleClick,
-} from "../../Utils/handleCanvasDrawing";
+import { handleMouseClick } from "../../Utils/UserInteractions/handleMouseClick";
+import { handleMouseMovement } from "../../Utils/UserInteractions/handleMouseMovement";
+import { handleMouseDown } from "../../Utils/UserInteractions/handleMouseDown";
 import { drawElement } from "../../Utils/drawElements";
-import { drawBoundingBoxAndCueBalls } from "../../Utils/resizeElements/drawBoundingBoxAndCueBalls";
-import { setActiveBoxAndCueBalls } from "../../Utils/handleActiveElements/setActiveBoxAndCueBalls";
 import { handleResize } from "../../Utils/canvasEventHandlers";
 import { initiateCanvas } from "../../Utils/canvasEventHandlers";
 import {
-  BoundingBoxAndCueBalls,
   ElementsContainer,
   ElementTypes,
-  ToolFlags,
-  ToolProperties,
 } from "../../Types/Types";
 import { currentTool } from "../../Recoil/Atoms/tools";
 import { handleCanvasToolActions } from "../../Utils/handleCanvasToolActions";
@@ -24,12 +18,19 @@ import { drawResizeHandlesAndBoundingBox } from "../../Utils/Resize/drawResizeHa
 import { hideResizeHandlesAndBoundingBox } from "../../Utils/Resize/hideResizeHandlesAndBoundingBox";
 
 
+
 export let elementsOnCanvas: ElementsContainer = [];
 export let activeElementId: string = "";
+export let activeElementIndex: number = -1;
 
 export const setActiveElementId = (id: string | "") => {
   activeElementId = id;
   console.log("activeElementId: ", activeElementId);
+};
+
+export const setActiveElementIndex = (index: number) => {
+  activeElementIndex = index;
+  console.log("activeElementIndex: ", activeElementIndex);
 };
 
 export const getActiveElementId = () => {
@@ -44,7 +45,7 @@ export const getElementsOnCanvas = () => {
   return elementsOnCanvas;  
 };
 
-const overlayForDrag = document.createElement("div");
+export const overlayForDrag = document.createElement("div");
 overlayForDrag.style.position = "fixed";
 overlayForDrag.style.top = "0";
 overlayForDrag.style.left = "0";
@@ -53,6 +54,7 @@ overlayForDrag.style.height = "100vh";
 overlayForDrag.style.cursor = "nwse-resize";
 overlayForDrag.style.zIndex = "9999";
 overlayForDrag.style.display = "none";
+overlayForDrag.style.pointerEvents = "all";
 overlayForDrag.className = "overlay-for-dragging";
 
 document.body.appendChild(overlayForDrag);
@@ -62,22 +64,38 @@ const Board: React.FC = () => {
   const [selectedTool, setSelectedTool] = useRecoilState<string>(currentTool);
   const [recoilElements, setRecoilElements] = useRecoilState<ElementsContainer>(elementsAtom);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  let currentActiveElement: ElementTypes | undefined = undefined;
 
   let animationFrameId: number | null = null;
+  if(activeElementId !== ""){
+    currentActiveElement = elementsOnCanvas.find((element) => element.id === activeElementId);
+  }
   const resizeClosure = () => handleResize(canvasRef);
 
   useEffect(() => {
     if (!canvasRef.current) return;
     const ctx = canvasRef.current.getContext("2d");
     if (!ctx) return;
-    console.log("inside useEffect due to selectedTool & activeElementId change");
     console.log("currentActiveElementId: ", activeElementId);
-    const handleCanvasClick = (e: MouseEvent) => {
-      handleClick(e, canvasRef, setActiveElementId, setSelectedTool, setRecoilElements);
-    };
-    if(selectedTool === "select") canvasRef.current.addEventListener("click", handleCanvasClick);
-    if(activeElementId === "") hideResizeHandlesAndBoundingBox();
 
+    const handleUserClick = (e: MouseEvent) => {
+      handleMouseClick(e, canvasRef, setActiveElementId, setSelectedTool, setRecoilElements);
+    };
+  
+    const handleUserMouseMovement = (e: MouseEvent) => {
+      handleMouseMovement(e, canvasRef, setRecoilElements, currentActiveElement)
+    };
+
+    const handleUserMouseDown = (e: MouseEvent) => {
+      handleMouseDown(e, canvasRef, setRecoilElements);
+    };
+
+    if(selectedTool === "select"){
+      document.addEventListener("click", handleUserClick);
+      document.addEventListener("mousemove", handleUserMouseMovement);
+      document.addEventListener("mousedown", handleUserMouseDown);
+    }
+    if(activeElementId === "") hideResizeHandlesAndBoundingBox();
     function animate() {
       if (!ctx) return;
       animationFrameId = requestAnimationFrame(animate);
@@ -95,7 +113,6 @@ const Board: React.FC = () => {
 
     animate();
 
-
     const cleanup = handleCanvasToolActions(
       canvasRef,
       selectedTool,
@@ -103,13 +120,14 @@ const Board: React.FC = () => {
       setActiveElementId,
       setRecoilElements,
     );
+
     return () => {
-      if(cleanup) cleanup();
-      console.log("inside useEffect cleanup");
-      if (animationFrameId) cancelAnimationFrame(animationFrameId);
-      if (canvasRef.current) {
-        canvasRef.current.removeEventListener("click", handleCanvasClick);
-      }
+        cleanup ? cleanup() : null;
+        animationFrameId ? cancelAnimationFrame(animationFrameId) : null;
+        document.removeEventListener("click", handleUserClick);
+        document.removeEventListener("mousemove", handleUserMouseMovement);
+        document.removeEventListener("mousedown", handleUserMouseDown);
+  
     }
   }, [selectedTool, recoilElements]);
 
@@ -120,7 +138,6 @@ const Board: React.FC = () => {
     if (!ctx) return;
     initiateCanvas(canvasRef);
     window.addEventListener("resize", resizeClosure);
-
     return () => {
       window.removeEventListener("resize", resizeClosure);
     }

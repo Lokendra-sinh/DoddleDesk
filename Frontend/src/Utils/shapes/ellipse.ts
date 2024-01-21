@@ -1,5 +1,5 @@
 import React from "react";
-import { elementTypes, elementsContainer } from "../../Recoil/Atoms/elements";
+import { ElementTypes } from "../../Types/Types";
 
 type Position = {
   x: number;
@@ -8,7 +8,7 @@ type Position = {
 
 export function drawEllipse(
   ctx: CanvasRenderingContext2D,
-  element: elementTypes
+  element: ElementTypes
 ) {
    
   if (!ctx) return;
@@ -23,5 +23,6 @@ export function drawEllipse(
   ctx.fillStyle = element.color;
   ctx.lineWidth = element.size;
   ctx.ellipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI);
+  ctx.strokeStyle = element.color;
   ctx.stroke();
 }

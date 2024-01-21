@@ -4,7 +4,7 @@ import { ElementsContainer, ElementTypes} from "../Types/Types";
 
 import {
   elementsOnCanvas,
-  setElementsOnCanvas,
+  setActiveElementIndex,
 } from "../../src/Components/Board/Board";
 
 type SetActiveElementIdType = (id: string) => void;
@@ -33,7 +33,7 @@ export function handleActiveElementDrawing(
       x: e.clientX - canvasRef.current!.offsetLeft,
       y: e.clientY - canvasRef.current!.offsetTop,
     },
-    color: "black",
+    color: "gray",
     size: 2,
     cursor: "crosshair",
     id: uuidv4(),
@@ -65,8 +65,8 @@ export function handleActiveElementDrawing(
 
   const onMouseUp = (e: MouseEvent) => {
     if (elementAdded) {
-      canvasRef.current!.style.cursor = "default";
       setActiveElementId(elementsOnCanvas[currentElementIndex].id);
+      setActiveElementIndex(currentElementIndex);
       setSelectedTool("select");
       setRecoilElements(prevElements => [...prevElements, elementsOnCanvas[currentElementIndex]]);
       console.log("finished dragging");
@@ -78,65 +78,8 @@ export function handleActiveElementDrawing(
     isDragging = false;
     elementAdded = false;
   };
+
   canvasRef.current.addEventListener("mousemove", onMouseMove);
   canvasRef.current.addEventListener("mouseup", onMouseUp);
 }
 
-export const handleClick = (
-  e: MouseEvent,
-  canvasRef: React.RefObject<HTMLCanvasElement>,
-  setActiveElementId: SetActiveElementIdType,
-  setSelectedTool: React.Dispatch<React.SetStateAction<string>>,
-  setRecoilElements: React.Dispatch<React.SetStateAction<ElementsContainer>>
-) => {
-  console.log("inside handleClick");
-  if (!canvasRef.current) return;
-  console.log("inside handleClick becuase canvasRef.current exists");
-  e.stopPropagation();
-  const clickedX = e.clientX - canvasRef.current!.offsetLeft;
-  const clickedY = e.clientY - canvasRef.current!.offsetTop;
-  let clickedElementIndex: number | undefined;
-  let clickedElement: ElementTypes | undefined;
-  let clickedElementId: string | undefined;
-
-  for (let i = 0; i < elementsOnCanvas.length; i++) {
-    const { startCoordinates, endCoordinates } = elementsOnCanvas[i];
-    const { x: startX, y: startY } = startCoordinates;
-    const { x: endX, y: endY } = endCoordinates;
-    if (
-      clickedX >= startX &&
-      clickedX <= endX &&
-      clickedY >= startY &&
-      clickedY <= endY
-    ) {
-      console.log("inside element");
-      clickedElementId = elementsOnCanvas[i].id;
-      clickedElementIndex = i;
-      clickedElement = elementsOnCanvas[i];
-      break;
-    }
-  }
-
-  if (
-    clickedElementIndex === undefined ||
-    clickedElement === undefined ||
-    clickedElementId === undefined
-  ) {
-    console.log("no element was clicked");
-    setActiveElementId("");
-    setRecoilElements((prevElements) => [...prevElements]);
-    return;
-  }
-  setActiveElementId(clickedElementId);
-  setRecoilElements((prevElements) => {
-    // Check if the element is already in the state
-    const isElementAlreadyInState = prevElements.some(
-      (element) => element.id === clickedElementId
-    );
-    if (!isElementAlreadyInState) {
-      // Add the new element if it's not already present
-      return [...prevElements, clickedElement!];
-    }
-    return prevElements; // Return the existing state if the element is already present
-  });
-};

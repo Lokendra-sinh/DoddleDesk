@@ -1,5 +1,5 @@
 import React from "react";
-import { elementTypes, elementsContainer } from "../../Recoil/Atoms/elements";
+import { ElementTypes } from "../../Types/Types";
 
 type Position = {
     x: number;
@@ -8,7 +8,7 @@ type Position = {
 
 export function drawBiSquare(
     ctx: CanvasRenderingContext2D,
-    element: elementTypes,
+    element: ElementTypes,
   ) {
 
     if (!ctx) return;
@@ -72,5 +72,6 @@ export function drawBiSquare(
     );
   
     ctx.closePath();
+    ctx.strokeStyle = element.color;
     ctx.stroke();
   }

@@ -14,12 +14,26 @@ export const handleCanvasToolActions = (
   setRecoilElements: React.Dispatch<React.SetStateAction<ElementsContainer>>,
 ) => {
   if (!canvasRef.current) return;
-  console.log(
-    "inside handleCanvasToolActions where cursor is: ",
-    canvasRef.current.style.cursor
-  );
 
-  const onMouseDown = (e: MouseEvent) => {
+  switch (selectedTool) {
+    case "circle":
+    case "ellipse":
+    case "rectangle":
+    case "biSquare":
+    case "line":
+    case "text":
+      document.body.style.cursor = "crosshair";
+      canvasRef.current.addEventListener("mousedown", onMouseDown);
+      break;
+    case "grab":
+      document.body.style.cursor = "grab";
+      break;
+    case "select":
+      document.body.style.cursor = "default";
+      break;
+  }
+
+  function onMouseDown(e: MouseEvent){
     handleActiveElementDrawing(
       e,
       canvasRef,
@@ -29,25 +43,6 @@ export const handleCanvasToolActions = (
       setRecoilElements,
     );
   };
-
-  switch (selectedTool) {
-    case "circle":
-    case "ellipse":
-    case "rectangle":
-    case "biSquare":
-    case "line":
-    case "text":
-      canvasRef.current.style.cursor = "crosshair";
-      canvasRef.current.addEventListener("mousedown", onMouseDown);
-      break;
-    case "grab":
-      canvasRef.current.style.cursor = "grab";
-      break;
-    case "select":
-      canvasRef.current.style.cursor = "default";
-      break;
-  }
-
   // Return a cleanup function
   return () => {
     if (canvasRef.current) {
