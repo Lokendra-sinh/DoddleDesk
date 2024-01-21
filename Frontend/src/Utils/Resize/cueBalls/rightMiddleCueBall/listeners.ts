@@ -1,73 +1,72 @@
+// listeners.ts
 import { elementsOnCanvas, setElementsOnCanvas, activeElementId } from "../../../../Components/Board/Board";
+import { ElementTypes } from "../../../../Types/Types";
 
-export function attachListeners(rightMiddleCueBall: HTMLDivElement, canvasRef: React.RefObject<HTMLCanvasElement>) {
+export function attachListeners(
+  rightMiddleCueBall: HTMLDivElement,
+  canvasRef: React.RefObject<HTMLCanvasElement>
+) {
+  if (!canvasRef.current) return;
+
+  let isResizing = false;
+  let offsetToCenter = { x: 0, y: 0 };
+  let currentActiveElementIndex: number;
+  const overlayForDragging = document.querySelector(".overlay-for-dragging") as HTMLDivElement;
+
+  if (!overlayForDragging) return;
+
+  const updateElementCoordinates = (newX: number) => {
+    const updatedElements = [...elementsOnCanvas];
+    const currentElement = updatedElements[currentActiveElementIndex];
+    updatedElements[currentActiveElementIndex] = {
+      ...currentElement,
+      endCoordinates: { ...currentElement.endCoordinates, x: newX }
+    };
+    setElementsOnCanvas(updatedElements);
+  };
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (!isResizing || !canvasRef.current) return;
+    const newX = e.clientX - canvasRef.current.offsetLeft - offsetToCenter.x;
+    updateElementCoordinates(newX);
+  };
+
+  const handleInversion = (currentElement: ElementTypes) => {
+    const { startCoordinates, endCoordinates } = currentElement;
+    const { x: startX } = startCoordinates;
+    const { x: endX } = endCoordinates;
+
+    if (endX < startX) {
+      [startCoordinates.x, endCoordinates.x] = [endX, startX];
+    }
+  };
+
+  const handleMouseUp = () => {
+    isResizing = false;
+    overlayForDragging.style.display = "none";
+    document.removeEventListener("mousemove", handleMouseMove);
+    document.removeEventListener("mouseup", handleMouseUp);
+
+    const currentElement = elementsOnCanvas[currentActiveElementIndex];
+    handleInversion(currentElement);
+    setElementsOnCanvas([...elementsOnCanvas]);
+  };
+
+  const handleMouseDown = (e: MouseEvent) => {
     if (!canvasRef.current) return;
+    isResizing = true;
+    currentActiveElementIndex = elementsOnCanvas.findIndex(element => element.id === activeElementId);
+    overlayForDragging.style.display = "block";
+    overlayForDragging.style.cursor = "e-resize";
 
-    let isResizing = false;
-    let offsetToCenter = { x: 0, y: 0 };
-    let dragStart = { x: 0, y: 0 }; // Not used for resizing, but kept for consistency
-    let currentActiveElementIndex: number;
+    const rect = rightMiddleCueBall.getBoundingClientRect();
+    offsetToCenter.x = e.clientX - rect.left - rect.width / 2;
 
-    let overlayForDragging = document.querySelector(".overlay-for-dragging") as HTMLDivElement;
-    if (!overlayForDragging) return;
+    document.body.addEventListener("mousemove", handleMouseMove);
+    document.body.addEventListener("mouseup", handleMouseUp);
+  };
 
-    const handleMouseMove = (e: MouseEvent) => {
-        console.log("currently dragging");
-        if (!isResizing || !canvasRef.current) return;
-        const newX = e.clientX - canvasRef.current.offsetLeft - offsetToCenter.x;
-
-        const currentElement = elementsOnCanvas[currentActiveElementIndex];
-        currentElement.endCoordinates.x = newX;
-    };
-
-    const handleMouseUp = () => {
-        console.log("stop dragging");
-        isResizing = false;
-        overlayForDragging.style.display = "none";
-        document.removeEventListener("mousemove", handleMouseMove);
-        document.removeEventListener("mouseup", handleMouseUp);
-
-        const currentElement = elementsOnCanvas[currentActiveElementIndex];
-        const { startCoordinates, endCoordinates } = currentElement;
-        const { x: startX, y: startY } = startCoordinates;
-        const { x: endX, y: endY } = endCoordinates;
-
-        if(endX < startX){
-            elementsOnCanvas[currentActiveElementIndex].startCoordinates = {
-                x: endX,
-                y: startY,
-            };
-            elementsOnCanvas[currentActiveElementIndex].endCoordinates = {
-                x: startX,
-                y: endY,
-            };
-        }
-    };
-
-    const handleMouseDown = (e: MouseEvent) => {
-        console.log("initiate dragging");
-        if (!canvasRef.current) return;
-        isResizing = true;
-        currentActiveElementIndex = elementsOnCanvas.findIndex(element => element.id === activeElementId);
-        overlayForDragging.style.display = "block";
-        overlayForDragging.style.cursor = "e-resize";
-        const rect = rightMiddleCueBall.getBoundingClientRect();
-        const centerOfCueBall = {
-            x: rect.left + rect.width / 2,
-            y: rect.top + rect.height / 2
-        };
-
-        // Calculate offset to the center of rightMiddleCueBall
-        offsetToCenter.x = e.clientX - centerOfCueBall.x;
-        offsetToCenter.y = e.clientY - centerOfCueBall.y;
-
-        // Add global event listeners for mousemove and mouseup
-        document.body.addEventListener("mousemove", handleMouseMove);
-        document.body.addEventListener("mouseup", handleMouseUp);
-    };
-
-    rightMiddleCueBall.addEventListener("mouseenter", () => rightMiddleCueBall.style.cursor = "e-resize");
-    rightMiddleCueBall.addEventListener("mouseleave", () => rightMiddleCueBall.style.cursor = "default");
-    rightMiddleCueBall.addEventListener("mousedown", handleMouseDown);
+  rightMiddleCueBall.addEventListener("mouseenter", () => rightMiddleCueBall.style.cursor = "e-resize");
+  rightMiddleCueBall.addEventListener("mouseleave", () => rightMiddleCueBall.style.cursor = "default");
+  rightMiddleCueBall.addEventListener("mousedown", handleMouseDown);
 }
-

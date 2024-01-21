@@ -1,33 +1,36 @@
 import { useState, useEffect, useRef } from "react";
 import Navbar from "../Navbar/Navbar";
 import { useRecoilState } from "recoil";
-import { elementsAtom, activeElementIdAtom } from "../../Recoil/Atoms/elements";
-import {
-  handleActiveElementDrawing,
-  handleClick,
-} from "../../Utils/handleCanvasDrawing";
+import { elementsAtom } from "../../Recoil/Atoms/elements";
+import { handleMouseClick } from "../../Utils/UserInteractions/handleMouseClick";
+import { handleMouseMovement } from "../../Utils/UserInteractions/handleMouseMovement";
+import { handleMouseDown } from "../../Utils/UserInteractions/handleMouseDown";
 import { drawElement } from "../../Utils/drawElements";
-import { drawBoundingBoxAndCueBalls } from "../../Utils/resizeElements/drawBoundingBoxAndCueBalls";
-import { setActiveBoxAndCueBalls } from "../../Utils/handleActiveElements/setActiveBoxAndCueBalls";
 import { handleResize } from "../../Utils/canvasEventHandlers";
 import { initiateCanvas } from "../../Utils/canvasEventHandlers";
 import {
-  BoundingBoxAndCueBalls,
   ElementsContainer,
   ElementTypes,
-  ToolFlags,
-  ToolProperties,
 } from "../../Types/Types";
 import { currentTool } from "../../Recoil/Atoms/tools";
 import { handleCanvasToolActions } from "../../Utils/handleCanvasToolActions";
 import { drawResizeHandlesAndBoundingBox } from "../../Utils/Resize/drawResizeHandlesAndBoundingBox";
+import { hideResizeHandlesAndBoundingBox } from "../../Utils/Resize/hideResizeHandlesAndBoundingBox";
+
 
 
 export let elementsOnCanvas: ElementsContainer = [];
 export let activeElementId: string = "";
+export let activeElementIndex: number = -1;
 
-export const setActiveElementId = (id: string) => {
+export const setActiveElementId = (id: string | "") => {
   activeElementId = id;
+  console.log("activeElementId: ", activeElementId);
+};
+
+export const setActiveElementIndex = (index: number) => {
+  activeElementIndex = index;
+  console.log("activeElementIndex: ", activeElementIndex);
 };
 
 export const getActiveElementId = () => {
@@ -42,7 +45,7 @@ export const getElementsOnCanvas = () => {
   return elementsOnCanvas;  
 };
 
-const overlayForDrag = document.createElement("div");
+export const overlayForDrag = document.createElement("div");
 overlayForDrag.style.position = "fixed";
 overlayForDrag.style.top = "0";
 overlayForDrag.style.left = "0";
@@ -51,6 +54,7 @@ overlayForDrag.style.height = "100vh";
 overlayForDrag.style.cursor = "nwse-resize";
 overlayForDrag.style.zIndex = "9999";
 overlayForDrag.style.display = "none";
+overlayForDrag.style.pointerEvents = "all";
 overlayForDrag.className = "overlay-for-dragging";
 
 document.body.appendChild(overlayForDrag);
@@ -58,70 +62,40 @@ document.body.appendChild(overlayForDrag);
 const Board: React.FC = () => {
   console.log("inside board");
   const [selectedTool, setSelectedTool] = useRecoilState<string>(currentTool);
-  // const [activeElementId, setActiveElementId] = useState<string>("");
+  const [recoilElements, setRecoilElements] = useRecoilState<ElementsContainer>(elementsAtom);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-
-  console.log("selectedTool: ", selectedTool);
-
-  // let elementsOnCanvas = useRef<ElementsContainer>([]);
-
-  let activeBoxAndCueBalls = useRef<BoundingBoxAndCueBalls>({
-    boundingBox: {
-      x: 0,
-      y: 0,
-      width: 0,
-      height: 0,
-    },
-    cueBalls: {
-      topLeft: {
-        x: 0,
-        y: 0,
-      },
-      topRight: {
-        x: 0,
-        y: 0,
-      },
-      bottomLeft: {
-        x: 0,
-        y: 0,
-      },
-      bottomRight: {
-        x: 0,
-        y: 0,
-      },
-      topMiddle: {
-        x: 0,
-        y: 0,
-      },
-      bottomMiddle: {
-        x: 0,
-        y: 0,
-      },
-      leftMiddle: {
-        x: 0,
-        y: 0,
-      },
-      rightMiddle: {
-        x: 0,
-        y: 0,
-      },
-    },
-  });
+  let currentActiveElement: ElementTypes | undefined = undefined;
 
   let animationFrameId: number | null = null;
+  if(activeElementId !== ""){
+    currentActiveElement = elementsOnCanvas.find((element) => element.id === activeElementId);
+  }
   const resizeClosure = () => handleResize(canvasRef);
 
   useEffect(() => {
     if (!canvasRef.current) return;
     const ctx = canvasRef.current.getContext("2d");
     if (!ctx) return;
-    console.log("inside useEffect due to selectedTool change");
-    
-    const handleCanvasClick = (e: MouseEvent) => {
-      handleClick(e, canvasRef);
-    };
-    if(selectedTool === "select") canvasRef.current.addEventListener("click", handleCanvasClick);
+    console.log("currentActiveElementId: ", activeElementId);
 
+    const handleUserClick = (e: MouseEvent) => {
+      handleMouseClick(e, canvasRef, setActiveElementId, setSelectedTool, setRecoilElements);
+    };
+  
+    const handleUserMouseMovement = (e: MouseEvent) => {
+      handleMouseMovement(e, canvasRef, setRecoilElements, currentActiveElement)
+    };
+
+    const handleUserMouseDown = (e: MouseEvent) => {
+      handleMouseDown(e, canvasRef, setRecoilElements);
+    };
+
+    if(selectedTool === "select"){
+      document.addEventListener("click", handleUserClick);
+      document.addEventListener("mousemove", handleUserMouseMovement);
+      document.addEventListener("mousedown", handleUserMouseDown);
+    }
+    if(activeElementId === "") hideResizeHandlesAndBoundingBox();
     function animate() {
       if (!ctx) return;
       animationFrameId = requestAnimationFrame(animate);
@@ -130,9 +104,8 @@ const Board: React.FC = () => {
       if (elementsOnCanvas.length > 0) {
         elementsOnCanvas.forEach((element) => {
           drawElement(ctx, element);
-          if (element.id === activeElementId) {
-            // drawBoundingBoxAndCueBalls(ctx, element, activeBoxAndCueBalls);
-            drawResizeHandlesAndBoundingBox(element, canvasRef);
+          if(element.id === activeElementId){
+            drawResizeHandlesAndBoundingBox(element, canvasRef, activeElementId);
           }
         });
       }
@@ -140,30 +113,31 @@ const Board: React.FC = () => {
 
     animate();
 
-
     const cleanup = handleCanvasToolActions(
       canvasRef,
       selectedTool,
       setSelectedTool,
-      activeBoxAndCueBalls,
+      setActiveElementId,
+      setRecoilElements,
     );
+
     return () => {
-      if(cleanup) cleanup();
-      if (animationFrameId) cancelAnimationFrame(animationFrameId);
-      if (canvasRef.current) {
-        canvasRef.current.removeEventListener("click", handleCanvasClick);
-      }
+        cleanup ? cleanup() : null;
+        animationFrameId ? cancelAnimationFrame(animationFrameId) : null;
+        document.removeEventListener("click", handleUserClick);
+        document.removeEventListener("mousemove", handleUserMouseMovement);
+        document.removeEventListener("mousedown", handleUserMouseDown);
+  
     }
-  }, [selectedTool]);
+  }, [selectedTool, recoilElements]);
 
   useEffect(() => {
-    console.log("inside useEffect due to elements change");
+    console.log("inside useEffect as component mounts");
     if (!canvasRef.current) return;
     const ctx = canvasRef.current.getContext("2d");
     if (!ctx) return;
     initiateCanvas(canvasRef);
     window.addEventListener("resize", resizeClosure);
-
     return () => {
       window.removeEventListener("resize", resizeClosure);
     }
