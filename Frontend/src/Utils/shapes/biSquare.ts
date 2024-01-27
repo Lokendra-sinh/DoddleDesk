@@ -1,10 +1,5 @@
-import React from "react";
+import { activeForegroundElement } from "../../Components/Board/Board";
 import { ElementTypes } from "../../Types/Types";
-
-type Position = {
-    x: number;
-    y: number;
-}
 
 export function drawBiSquare(
     ctx: CanvasRenderingContext2D,
@@ -12,8 +7,9 @@ export function drawBiSquare(
   ) {
 
     if (!ctx) return;
-
     const { startCoordinates, endCoordinates } = element;
+    if (!startCoordinates || !endCoordinates) return;
+
   
     const cornerRadius = 20;
     const squareWidth = endCoordinates.x - startCoordinates.x;

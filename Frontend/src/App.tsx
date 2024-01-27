@@ -15,7 +15,7 @@ function App() {
     <Routes>
       
      <Route path="/" element={
-      <div className='w-screen h-screen relative'>
+      <div className='w-screen min-h-screen relative'>
         <Board />
       </div>
      } />

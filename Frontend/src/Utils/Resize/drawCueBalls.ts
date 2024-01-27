@@ -17,8 +17,8 @@ export function drawCueBalls(
     y: number,
     width: number,
     height: number,
-    canvasRef: React.RefObject<HTMLCanvasElement>,
-    activeElementId: string | "",
+    foregroundContext: CanvasRenderingContext2D,
+    setRecoilElements: React.Dispatch<React.SetStateAction<ElementTypes[]>>,
 ) {
   
   const topLeftX = x - ballRadius;
@@ -45,13 +45,13 @@ export function drawCueBalls(
   const bottomRightX = x + width - ballRadius;
   const bottomRightY = y + height - ballRadius;
 
-  drawTopLeftCueBall(topLeftX, topLeftY, ballWidth, ballHeight, canvasRef, activeElementId);
-  drawTopMiddleCueBall(topMiddleX, topMiddleY, ballWidth, ballHeight, canvasRef, activeElementId);
-  drawTopRightCueBall(topRightX, topRightY, ballWidth, ballHeight , canvasRef, activeElementId);
-  drawLeftMiddleCueBall(leftMiddleX, leftMiddleY, ballWidth, ballHeight , canvasRef, activeElementId);
-  drawRightMiddleCueBall(rightMiddleX, rightMiddleY, ballWidth, ballHeight , canvasRef, activeElementId);
-  drawBottomLeftCueBall(bottomLeftX, bottomLeftY, ballWidth, ballHeight , canvasRef, activeElementId);
-  drawBottomMiddleCueBall(bottomMiddleX, bottomMiddleY, ballWidth, ballHeight , canvasRef, activeElementId);
-  drawBottomRightCueBall(bottomRightX, bottomRightY, ballWidth, ballHeight , canvasRef, activeElementId);
+  drawTopLeftCueBall(topLeftX, topLeftY, ballWidth, ballHeight, foregroundContext, setRecoilElements);
+  drawTopMiddleCueBall(topMiddleX, topMiddleY, ballWidth, ballHeight, foregroundContext, setRecoilElements);
+  drawTopRightCueBall(topRightX, topRightY, ballWidth, ballHeight , foregroundContext, setRecoilElements);
+  drawLeftMiddleCueBall(leftMiddleX, leftMiddleY, ballWidth, ballHeight , foregroundContext, setRecoilElements);
+  drawRightMiddleCueBall(rightMiddleX, rightMiddleY, ballWidth, ballHeight , foregroundContext, setRecoilElements);
+  drawBottomLeftCueBall(bottomLeftX, bottomLeftY, ballWidth, ballHeight , foregroundContext, setRecoilElements);
+  drawBottomMiddleCueBall(bottomMiddleX, bottomMiddleY, ballWidth, ballHeight , foregroundContext, setRecoilElements);
+  drawBottomRightCueBall(bottomRightX, bottomRightY, ballWidth, ballHeight , foregroundContext, setRecoilElements);
 
 }

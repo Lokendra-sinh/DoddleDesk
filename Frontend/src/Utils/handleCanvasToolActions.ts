@@ -1,52 +1,73 @@
 import React from "react";
 import { ElementsContainer } from "../Types/Types";
-import { handleActiveElementDrawing } from "./handleCanvasDrawing";
+import { activeInteractiveElement, canvasElements, globalCursorStyle, isElementMoving } from "./interactionhelpers";
+import { renderSelectedShape } from "./Render/DynamicElements/renderSelectedShape";
+import { setCanvasAndRecoilState, handlMainCanvasMouseMovements } from "./Operations/handleMainCanvasMouseMovements";
+import { handleActiveOperation } from "./Operations/handleActiveOperation";
 
 
-type SetActiveElementIdType = (id: string) => void;
 
 
 export const handleCanvasToolActions = (
-  canvasRef: React.RefObject<HTMLCanvasElement>,
+  mainCanvasRef: React.RefObject<HTMLCanvasElement>,
   selectedTool: string,
   setSelectedTool: React.Dispatch<React.SetStateAction<string>>,
-  setActiveElementId: SetActiveElementIdType,
   setRecoilElements: React.Dispatch<React.SetStateAction<ElementsContainer>>,
+  recoilElements: ElementsContainer,
 ) => {
-  if (!canvasRef.current) return;
+    if (!mainCanvasRef.current) return;
+    console.log("inside handleCanvasToolActions: ", activeInteractiveElement!);
 
+  
   switch (selectedTool) {
     case "circle":
     case "ellipse":
     case "rectangle":
     case "biSquare":
-    case "line":
+    case "pencil":
     case "text":
-      document.body.style.cursor = "crosshair";
-      canvasRef.current.addEventListener("mousedown", onMouseDown);
-      break;
-    case "grab":
-      document.body.style.cursor = "grab";
+      mainCanvasRef.current.style.cursor = "crosshair";
+      mainCanvasRef.current.addEventListener("mousedown", handleActiveToolMouseDown);
       break;
     case "select":
-      document.body.style.cursor = "default";
+      if(recoilElements.length !== 0){
+        console.log("canvasElements inside handleCanvasToolActions: ", canvasElements);
+        setCanvasAndRecoilState(mainCanvasRef, recoilElements, setRecoilElements);
+        mainCanvasRef.current.addEventListener("mousemove", onMouseMove);
+        mainCanvasRef.current.addEventListener("mousedown", handleMainCanvasMouseDown);
+      }
+      mainCanvasRef.current.style.cursor = "default";
       break;
   }
 
-  function onMouseDown(e: MouseEvent){
-    handleActiveElementDrawing(
+  function handleActiveToolMouseDown(e: MouseEvent){
+    console.log("Mouse down when tool is: ", selectedTool);
+    renderSelectedShape(
       e,
-      canvasRef,
+      mainCanvasRef,
       selectedTool,
       setSelectedTool,
-      setActiveElementId,
-      setRecoilElements,
+      setRecoilElements
     );
   };
-  // Return a cleanup function
+
+  function handleMainCanvasMouseDown(e: MouseEvent){
+    handleActiveOperation(e, mainCanvasRef, recoilElements, setRecoilElements);
+  }
+
+
+ function onMouseMove(e: MouseEvent) {
+    if(isElementMoving) return;
+    console.log("inside mainCanvasMouse when isElementMoving is false")
+    handlMainCanvasMouseMovements(e);
+  }
+
+
   return () => {
-    if (canvasRef.current) {
-      canvasRef.current.removeEventListener("mousedown", onMouseDown);
-    }
+  
+      mainCanvasRef.current!.removeEventListener("mousedown", handleActiveToolMouseDown);
+      mainCanvasRef.current!.removeEventListener("mousedown", handleMainCanvasMouseDown);
+      mainCanvasRef.current!.removeEventListener("mousemove", onMouseMove);
+    
   };
 };

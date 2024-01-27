@@ -2,158 +2,86 @@ import { useState, useEffect, useRef } from "react";
 import Navbar from "../Navbar/Navbar";
 import { useRecoilState } from "recoil";
 import { elementsAtom } from "../../Recoil/Atoms/elements";
-import { handleMouseClick } from "../../Utils/UserInteractions/handleMouseClick";
-import { handleMouseMovement } from "../../Utils/UserInteractions/handleMouseMovement";
-import { handleMouseDown } from "../../Utils/UserInteractions/handleMouseDown";
-import { drawElement } from "../../Utils/drawElements";
 import { handleResize } from "../../Utils/canvasEventHandlers";
 import { initiateCanvas } from "../../Utils/canvasEventHandlers";
-import {
-  ElementsContainer,
-  ElementTypes,
-} from "../../Types/Types";
+import { ElementsContainer, ElementTypes } from "../../Types/Types";
 import { currentTool } from "../../Recoil/Atoms/tools";
 import { handleCanvasToolActions } from "../../Utils/handleCanvasToolActions";
-import { drawResizeHandlesAndBoundingBox } from "../../Utils/Resize/drawResizeHandlesAndBoundingBox";
-import { hideResizeHandlesAndBoundingBox } from "../../Utils/Resize/hideResizeHandlesAndBoundingBox";
-
-
-
-export let elementsOnCanvas: ElementsContainer = [];
-export let activeElementId: string = "";
-export let activeElementIndex: number = -1;
-
-export const setActiveElementId = (id: string | "") => {
-  activeElementId = id;
-  console.log("activeElementId: ", activeElementId);
-};
-
-export const setActiveElementIndex = (index: number) => {
-  activeElementIndex = index;
-  console.log("activeElementIndex: ", activeElementIndex);
-};
-
-export const getActiveElementId = () => {
-  return activeElementId;
-};
-
-export const setElementsOnCanvas = (elements: ElementsContainer) => {
-  elementsOnCanvas = elements;
-};
-
-export const getElementsOnCanvas = () => {
-  return elementsOnCanvas;  
-};
-
-export const overlayForDrag = document.createElement("div");
-overlayForDrag.style.position = "fixed";
-overlayForDrag.style.top = "0";
-overlayForDrag.style.left = "0";
-overlayForDrag.style.width = "100vw";
-overlayForDrag.style.height = "100vh";
-overlayForDrag.style.cursor = "nwse-resize";
-overlayForDrag.style.zIndex = "9999";
-overlayForDrag.style.display = "none";
-overlayForDrag.style.pointerEvents = "all";
-overlayForDrag.className = "overlay-for-dragging";
-
-document.body.appendChild(overlayForDrag);
+import { debounce } from "lodash";
+import { drawStaticElements } from "../../Utils/Render/StaticElements/drawStaticElements";
+import { setAnimationContext } from "../../Utils/Render/DynamicElements/handleSelectedShapeAnimation";
+import { canvasElements } from "../../Utils/interactionhelpers";
 
 const Board: React.FC = () => {
-  console.log("inside board");
+  console.log("rendering board");
   const [selectedTool, setSelectedTool] = useRecoilState<string>(currentTool);
-  const [recoilElements, setRecoilElements] = useRecoilState<ElementsContainer>(elementsAtom);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  let currentActiveElement: ElementTypes | undefined = undefined;
+  const [recoilElements, setRecoilElements] =
+    useRecoilState<ElementsContainer>(elementsAtom);
+  const mainCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  let animationFrameId: number | null = null;
-  if(activeElementId !== ""){
-    currentActiveElement = elementsOnCanvas.find((element) => element.id === activeElementId);
-  }
-  const resizeClosure = () => handleResize(canvasRef);
+
 
   useEffect(() => {
-    if (!canvasRef.current) return;
-    const ctx = canvasRef.current.getContext("2d");
-    if (!ctx) return;
-    console.log("currentActiveElementId: ", activeElementId);
-
-    const handleUserClick = (e: MouseEvent) => {
-      handleMouseClick(e, canvasRef, setActiveElementId, setSelectedTool, setRecoilElements);
-    };
-  
-    const handleUserMouseMovement = (e: MouseEvent) => {
-      handleMouseMovement(e, canvasRef, setRecoilElements, currentActiveElement)
-    };
-
-    const handleUserMouseDown = (e: MouseEvent) => {
-      handleMouseDown(e, canvasRef, setRecoilElements);
-    };
-
-    if(selectedTool === "select"){
-      document.addEventListener("click", handleUserClick);
-      document.addEventListener("mousemove", handleUserMouseMovement);
-      document.addEventListener("mousedown", handleUserMouseDown);
-    }
-    if(activeElementId === "") hideResizeHandlesAndBoundingBox();
-    function animate() {
-      if (!ctx) return;
-      animationFrameId = requestAnimationFrame(animate);
-      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-
-      if (elementsOnCanvas.length > 0) {
-        elementsOnCanvas.forEach((element) => {
-          drawElement(ctx, element);
-          if(element.id === activeElementId){
-            drawResizeHandlesAndBoundingBox(element, canvasRef, activeElementId);
-          }
-        });
-      }
-    }
-
-    animate();
+    if(!mainCanvasRef.current) return;
+    console.log("recoilElements inside useEffect: ", recoilElements);
+    const ctx = mainCanvasRef.current.getContext("2d");
+    if(!ctx) return;
+    setAnimationContext(ctx, mainCanvasRef, setRecoilElements);
+    console.log("canvasElements inside useEffect: ", canvasElements);
+    drawStaticElements(
+      mainCanvasRef,
+      recoilElements
+    );
 
     const cleanup = handleCanvasToolActions(
-      canvasRef,
+      mainCanvasRef,
       selectedTool,
       setSelectedTool,
-      setActiveElementId,
       setRecoilElements,
+      recoilElements
     );
 
     return () => {
-        cleanup ? cleanup() : null;
-        animationFrameId ? cancelAnimationFrame(animationFrameId) : null;
-        document.removeEventListener("click", handleUserClick);
-        document.removeEventListener("mousemove", handleUserMouseMovement);
-        document.removeEventListener("mousedown", handleUserMouseDown);
-  
-    }
+      cleanup ? cleanup() : null;
+
+    };
   }, [selectedTool, recoilElements]);
 
   useEffect(() => {
     console.log("inside useEffect as component mounts");
-    if (!canvasRef.current) return;
-    const ctx = canvasRef.current.getContext("2d");
-    if (!ctx) return;
-    initiateCanvas(canvasRef);
-    window.addEventListener("resize", resizeClosure);
-    return () => {
-      window.removeEventListener("resize", resizeClosure);
+
+    initiateCanvas(
+      mainCanvasRef
+    );
+
+    const resizeClosure = () => {
+      handleResize(
+        mainCanvasRef,
+        recoilElements,
+        setRecoilElements
+      );
     }
+    const debouncedResize = debounce(resizeClosure, 20);
+  
+
+    window.addEventListener("resize", debouncedResize);
+    return () => {
+      window.removeEventListener("resize", debouncedResize);
+    };
   }, []);
 
   return (
-    <div className="w-full h-full bg-gray-100">
-      <Navbar />
-      <canvas
-        width={window.innerWidth}
-        height={window.innerHeight}
-        ref={canvasRef}
-        id="canvas"
-      ></canvas>
-    </div>
-  );
+      <div className="relative flex flex-col bg-white">
+        <Navbar />
+        <div id="canvas-container" className="relative w-screen h-[950px] overflow-auto overflow-x-hidden">
+          <canvas
+            ref={mainCanvasRef}
+            id="main-canvas"
+            className="absolute top-0 left-0 z-1"
+          ></canvas>
+        </div>
+      </div>
+    );
 };
 
 export default Board;
