@@ -1,78 +1,76 @@
 import { useState } from "react";
-import { LuBrush } from "react-icons/lu";
-import { LuEraser } from "react-icons/lu";
+import { PiEraserFill } from "react-icons/pi";
 import { PiTextTBold } from "react-icons/pi";
 import { MdOutlineSquare } from "react-icons/md";
 import { BiSquareRounded } from "react-icons/bi";
 import { TbOvalVertical } from "react-icons/tb";
-import { LiaMousePointerSolid } from "react-icons/lia";
-import { PiHandGrabbingBold } from "react-icons/pi";
-import { LuShapes } from "react-icons/lu";
-import { SlActionUndo } from "react-icons/sl";
-import { LuPencil } from "react-icons/lu";
-import { SlActionRedo } from "react-icons/sl";
-import { FaRegCircle } from "react-icons/fa";
+import { LuMousePointer2 } from "react-icons/lu";
+import { RiShapesLine } from "react-icons/ri";
+import { IoCaretForwardSharp } from "react-icons/io5";
+import { IoPencilOutline } from "react-icons/io5";
+import { IoCaretBackSharp } from "react-icons/io5";
+import { VscCircleLarge } from "react-icons/vsc";
 import { currentTool } from "../../Recoil/Atoms/tools";
 import { useRecoilState } from "recoil";
-import { setActiveElementId } from "../Board/Board";
-
+import { elementsAtom } from "../../Recoil/Atoms/elements";
+import { ElementsContainer } from "../../Types/Types";
+import { canvasElements, setCueBallsAreVisible } from "../../Utils/interactionhelpers";
 
 const Toolbar: React.FC = () => {
   const [selectedTool, setSelectedTool] = useRecoilState<string>(currentTool);
+  const [recoilElements, setRecoilElements] =
+  useRecoilState<ElementsContainer>(elementsAtom);
   const [isShapesMenuOpen, setIsShapesMenuOpen] = useState<boolean>(false);
 
   const setToolAndActiveElementId = (tool: string) => {
-    setActiveElementId("");
-    setSelectedTool(prevTool => tool);
+    setSelectedTool(tool);
+    canvasElements.forEach((element, index) => {
+      canvasElements[index] = { ...element, isActive: false };
+    });
+    setCueBallsAreVisible(false);
+    setRecoilElements(() => [...canvasElements]);
+
   };
 
   return (
-    <div className="bg-white rounded-md drop-shadow-xl p-2 relative plus-cursor">
-      <div className="flex items-center justify-center gap-2">
+    <div className="bg-white border-gray-100 border rounded-sm relative h-fit flex items-center plus-cursor">
+      <div className="flex items-center justify-center">
         <button
           onClick={() => setToolAndActiveElementId("select")}
-          className={`hover:bg-gray-100 rounded-md px-2 py-1 ${
+          className={`hover:bg-gray-100 w-full border-r border-gray-100 rounded-sm px-3 py-2 ${
             selectedTool == "select" ? "bg-purple-200 hover:bg-purple-200" : "bg-transparent"
           }`}
         >
-          <LiaMousePointerSolid className="text-2xl" />
-        </button>
-        <button
-          onClick={() => setToolAndActiveElementId("grab")}
-          className={`hover:bg-gray-100 rounded-md px-2 py-1 ${
-            selectedTool == "grab" ? "bg-purple-200 hover:bg-purple-200" : "bg-transparent"
-          }`}
-        >
-          <PiHandGrabbingBold className="text-2xl" />
+          <LuMousePointer2 className="text-base" />
         </button>
         <button
           onClick={() => setToolAndActiveElementId("pencil")}
-          className={`hover:bg-gray-100 rounded-md px-2 py-1 ${
+          className={`hover:bg-gray-100 border-r border-gray-100 rounded-sm px-3 py-2 ${
             selectedTool == "pencil" ? "bg-purple-200 hover:bg-purple-200" : "bg-transparent"
           }`}
         >
-          <LuPencil className="text-2xl" />
+          <IoPencilOutline className="text-base" />
         </button>
         <button
           onClick={() => setToolAndActiveElementId("eraser")}
-          className={`hover:bg-gray-100 rounded-md px-2 py-1 ${
+          className={`hover:bg-gray-100 border-r border-gray-100 rounded-sm px-3 py-2 ${
             selectedTool == "eraser" ? "bg-purple-200 hover:bg-purple-200" : "bg-transparent"
           }`}
         >
-          <LuEraser className="text-2xl" />
+          <PiEraserFill className="text-base" />
         </button>
         <button
           onClick={() => setToolAndActiveElementId("text")}
-          className={`hover:bg-gray-100 rounded-md px-2 py-1 ${
+          className={`hover:bg-gray-100 border-r border-gray-100 rounded-sm px-3 py-2 ${
             selectedTool == "text" ? "bg-purple-200 hover:bg-purple-200" : "bg-transparent"
           }`}
         >
-          <PiTextTBold className="text-2xl" />
+          <PiTextTBold className="text-base" />
         </button>
 
         <button
           onClick={() => setIsShapesMenuOpen(!isShapesMenuOpen)}
-          className={`hover:bg-gray-100 rounded-md px-2 py-1 relative ${
+          className={`hover:bg-gray-100 rounded-sm px-3 py-2 border-r border-gray-100 relative ${
             selectedTool == "circle" ||
             selectedTool == "ellipse" ||
             selectedTool == "rectangle" ||
@@ -81,56 +79,57 @@ const Toolbar: React.FC = () => {
               : "bg-transparent"
           }`}
         >
-          <LuShapes className="text-2xl" />
+          <RiShapesLine className="text-base" />
           {isShapesMenuOpen && (
-            <div className="absolute bg-white shadow-full rounded-md top-12 flex -left-6">
+            <div className="absolute bg-white shadow-full rounded-sm px-3 py-2 top-12 flex -left-6">
               <button
                 onClick={() => {
                   setToolAndActiveElementId("circle");
                 }}
-                className="bg-transparent hover:bg-gray-100 rounded-md px-2 py-1"
+                className="bg-transparent hover:bg-gray-100 rounded-sm px-3 py-2"
               >
-                <FaRegCircle className="text-2xl" />
+                <VscCircleLarge className="text-base" />
               </button>
               <button
                 onClick={() => {
                   setToolAndActiveElementId("ellipse");
                 }}
-                className="bg-transparent hover:bg-gray-100 rounded-md px-2 py-1"
+                className="bg-transparent hover:bg-gray-100 rounded-sm px-3 py-2"
               >
-                <TbOvalVertical className="text-2xl" />
+                <TbOvalVertical className="text-base" />
               </button>
               <button
                 onClick={() => {
                   setToolAndActiveElementId("rectangle");
                 }}
-                className="bg-transparent hover:bg-gray-100 rounded-md px-2 py-1"
+                className="bg-transparent hover:bg-gray-100 rounded-sm px-3 py-2"
               >
-                <MdOutlineSquare className="text-2xl" />
+                <MdOutlineSquare className="text-base" />
               </button>
               <button
                 onClick={() => {
                   setToolAndActiveElementId("biSquare");
                 }}
-                className="bg-transparent hover:bg-gray-100 rounded-md px-2 py-1"
+                className="bg-transparent hover:bg-gray-100 rounded-sm px-3 py-2"
               >
-                <BiSquareRounded className="text-2xl" />
+                <BiSquareRounded className="text-base" />
               </button>
             </div>
           )}
         </button>
 
         <button
-          onClick={() => setToolAndActiveElementId("undo")}
-          className={`bg-transparent hover:bg-gray-100 rounded-md px-2 py-1`}
-        >
-          <SlActionUndo className="text-2xl" />
-        </button>
-        <button
           onClick={() => setToolAndActiveElementId("redo")}
-          className="bg-transparent hover:bg-gray-100 rounded-md px-2 py-1"
+          className="bg-transparent hover:bg-gray-100 border-r border-gray-100 rounded-sm px-3 py-1"
         >
-          <SlActionRedo className="text-2xl" />
+          <IoCaretBackSharp className="text-base" />
+        </button>
+
+        <button
+          onClick={() => setToolAndActiveElementId("undo")}
+          className={`bg-transparent hover:bg-gray-100 rounded-sm px-3 py-1`}
+        >
+          <IoCaretForwardSharp className="text-base" />
         </button>
       </div>
     </div>

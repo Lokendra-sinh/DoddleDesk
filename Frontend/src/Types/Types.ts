@@ -25,58 +25,27 @@ export type ToolProperties = {
 };
 
 export type ElementTypes = {
-    type: string,
-    startCoordinates: Position,
-    endCoordinates: Position,
-    color: string,
-    size: number,
-    cornerRadius? : number,
-    cursor: string,
     id: string,
-    active: boolean,
+    type: string,
+    startCoordinates?: Position,
+    endCoordinates?: Position,
+    points?: Position[],
+    color: string,
+    lineWidth: number | 1,
+    text?: "",
+    fontSize?: 0,
+    fontFamily?: "",
+    isFilled?: boolean,
+    isStroked?: boolean,
+    isText?: boolean,
+    isErased?: boolean,
+    isDragged?: boolean,
+    isResized?: boolean,
+    isRotated?: boolean,
+    isDeleted?: boolean,
+    isDrawn?: boolean,
+    isActive: boolean,
+    zIndex: number,
 }
-
-export type BoundingBoxAndCueBalls = {
-boundingBox: {
-    x: number,
-    y: number,
-    width: number,
-    height: number,
-},
-cueBalls: {
-    topLeft: {
-        x: number,
-        y: number,
-    },
-    topRight: {
-        x: number,
-        y: number,
-    },
-    bottomLeft: {
-        x: number,
-        y: number,
-    },
-    bottomRight: {
-        x: number,
-        y: number,
-    },
-    topMiddle: {
-        x: number,
-        y: number,
-    },
-    bottomMiddle: {
-        x: number,
-        y: number,
-    },
-    leftMiddle: {
-        x: number,
-        y: number,
-    },
-    rightMiddle: {
-        x: number,
-        y: number,
-    },
-}
-};
 
 export type ElementsContainer = ElementTypes[];
