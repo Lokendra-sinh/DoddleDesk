@@ -10,6 +10,7 @@ import {
   globalCursorStyle,
   setGlobalCursorStyle,
   setActiveInteractiveElement,
+  isElementResizing,
 } from "../interactionhelpers";
 
 let mouseX: number = 0;
@@ -33,6 +34,11 @@ export function setCanvasAndRecoilState(
 
 export function handlMainCanvasMouseMovements(e: MouseEvent) {
   e.stopPropagation();
+  if
+  (isElementMoving || isElementResizing){
+    console.log("existing motherfuckers becuase resizing or moving is true");
+    return;
+  }
   if (!canvasRef.current || canvasElements.length === 0) return;
   const mainCanvasRect = canvasRef.current.getBoundingClientRect();
   mouseX = e.clientX - mainCanvasRect.left;

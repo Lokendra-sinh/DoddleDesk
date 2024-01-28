@@ -33,44 +33,44 @@ const Toolbar: React.FC = () => {
   };
 
   return (
-    <div className="bg-white border-gray-100 border rounded-sm relative h-fit flex items-center plus-cursor">
-      <div className="flex items-center justify-center">
+    <div className="bg-white border-gray-100 border rounded-md relative h-fit flex items-center py-px px-px plus-cursor">
+      <div className="flex items-center justify-center gap-1">
         <button
           onClick={() => setToolAndActiveElementId("select")}
-          className={`hover:bg-gray-100 w-full border-r border-gray-100 rounded-sm px-3 py-2 ${
+          className={`hover:bg-gray-100 outline-none w-full rounded-md px-3 py-2 ${
             selectedTool == "select" ? "bg-purple-200 hover:bg-purple-200" : "bg-transparent"
           }`}
         >
-          <LuMousePointer2 className="text-base" />
+          <LuMousePointer2 className="text-sm" />
         </button>
         <button
           onClick={() => setToolAndActiveElementId("pencil")}
-          className={`hover:bg-gray-100 border-r border-gray-100 rounded-sm px-3 py-2 ${
+          className={`hover:bg-gray-100  outline-none rounded-md px-3 py-2 ${
             selectedTool == "pencil" ? "bg-purple-200 hover:bg-purple-200" : "bg-transparent"
           }`}
         >
-          <IoPencilOutline className="text-base" />
+          <IoPencilOutline className="text-sm" />
         </button>
         <button
           onClick={() => setToolAndActiveElementId("eraser")}
-          className={`hover:bg-gray-100 border-r border-gray-100 rounded-sm px-3 py-2 ${
+          className={`hover:bg-gray-100 outline-none rounded-md px-3 py-2 ${
             selectedTool == "eraser" ? "bg-purple-200 hover:bg-purple-200" : "bg-transparent"
           }`}
         >
-          <PiEraserFill className="text-base" />
+          <PiEraserFill className="text-sm" />
         </button>
         <button
           onClick={() => setToolAndActiveElementId("text")}
-          className={`hover:bg-gray-100 border-r border-gray-100 rounded-sm px-3 py-2 ${
+          className={`hover:bg-gray-100 outline-none rounded-md px-3 py-2 ${
             selectedTool == "text" ? "bg-purple-200 hover:bg-purple-200" : "bg-transparent"
           }`}
         >
-          <PiTextTBold className="text-base" />
+          <PiTextTBold className="text-sm" />
         </button>
 
         <button
           onClick={() => setIsShapesMenuOpen(!isShapesMenuOpen)}
-          className={`hover:bg-gray-100 rounded-sm px-3 py-2 border-r border-gray-100 relative ${
+          className={`hover:bg-gray-100 outline-none rounded-sm px-3 py-2 relative ${
             selectedTool == "circle" ||
             selectedTool == "ellipse" ||
             selectedTool == "rectangle" ||
@@ -79,16 +79,16 @@ const Toolbar: React.FC = () => {
               : "bg-transparent"
           }`}
         >
-          <RiShapesLine className="text-base" />
+          <RiShapesLine className="text-sm" />
           {isShapesMenuOpen && (
-            <div className="absolute bg-white shadow-full rounded-sm px-3 py-2 top-12 flex -left-6">
+            <div className="absolute border border-gray-100 bg-white shadow-full rounded-md px-1 py-1 top-12 flex -left-6">
               <button
                 onClick={() => {
                   setToolAndActiveElementId("circle");
                 }}
                 className="bg-transparent hover:bg-gray-100 rounded-sm px-3 py-2"
               >
-                <VscCircleLarge className="text-base" />
+                <VscCircleLarge className="text-sm" />
               </button>
               <button
                 onClick={() => {
@@ -96,7 +96,7 @@ const Toolbar: React.FC = () => {
                 }}
                 className="bg-transparent hover:bg-gray-100 rounded-sm px-3 py-2"
               >
-                <TbOvalVertical className="text-base" />
+                <TbOvalVertical className="text-sm" />
               </button>
               <button
                 onClick={() => {
@@ -104,7 +104,7 @@ const Toolbar: React.FC = () => {
                 }}
                 className="bg-transparent hover:bg-gray-100 rounded-sm px-3 py-2"
               >
-                <MdOutlineSquare className="text-base" />
+                <MdOutlineSquare className="text-sm" />
               </button>
               <button
                 onClick={() => {
@@ -112,7 +112,7 @@ const Toolbar: React.FC = () => {
                 }}
                 className="bg-transparent hover:bg-gray-100 rounded-sm px-3 py-2"
               >
-                <BiSquareRounded className="text-base" />
+                <BiSquareRounded className="text-sm" />
               </button>
             </div>
           )}
@@ -120,14 +120,14 @@ const Toolbar: React.FC = () => {
 
         <button
           onClick={() => setToolAndActiveElementId("redo")}
-          className="bg-transparent hover:bg-gray-100 border-r border-gray-100 rounded-sm px-3 py-1"
+          className="bg-transparent outline-none hover:bg-gray-100 rounded-md px-3 py-2"
         >
           <IoCaretBackSharp className="text-base" />
         </button>
 
         <button
           onClick={() => setToolAndActiveElementId("undo")}
-          className={`bg-transparent hover:bg-gray-100 rounded-sm px-3 py-1`}
+          className={`bg-transparent outline-none hover:bg-gray-100 rounded-sm px-3 py-2`}
         >
           <IoCaretForwardSharp className="text-base" />
         </button>

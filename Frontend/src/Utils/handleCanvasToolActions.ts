@@ -1,9 +1,10 @@
 import React from "react";
 import { ElementsContainer } from "../Types/Types";
-import { activeInteractiveElement, canvasElements, globalCursorStyle, isElementMoving } from "./interactionhelpers";
+import { activeInteractiveElement, canvasElements, globalCursorStyle, setGlobalCursorStyle, isElementMoving, isElementResizing } from "./interactionhelpers";
 import { renderSelectedShape } from "./Render/DynamicElements/renderSelectedShape";
 import { setCanvasAndRecoilState, handlMainCanvasMouseMovements } from "./Operations/handleMainCanvasMouseMovements";
 import { handleActiveOperation } from "./Operations/handleActiveOperation";
+
 
 
 
@@ -16,7 +17,6 @@ export const handleCanvasToolActions = (
   recoilElements: ElementsContainer,
 ) => {
     if (!mainCanvasRef.current) return;
-    console.log("inside handleCanvasToolActions: ", activeInteractiveElement!);
 
   
   switch (selectedTool) {
@@ -26,17 +26,18 @@ export const handleCanvasToolActions = (
     case "biSquare":
     case "pencil":
     case "text":
-      mainCanvasRef.current.style.cursor = "crosshair";
+      setGlobalCursorStyle("crosshair");
+      mainCanvasRef.current.style.cursor = globalCursorStyle;
       mainCanvasRef.current.addEventListener("mousedown", handleActiveToolMouseDown);
       break;
     case "select":
+      setGlobalCursorStyle("default");
       if(recoilElements.length !== 0){
-        console.log("canvasElements inside handleCanvasToolActions: ", canvasElements);
         setCanvasAndRecoilState(mainCanvasRef, recoilElements, setRecoilElements);
         mainCanvasRef.current.addEventListener("mousemove", onMouseMove);
-        mainCanvasRef.current.addEventListener("mousedown", handleMainCanvasMouseDown);
+        mainCanvasRef.current.addEventListener("mousedown", handleGeneralCanvasMouseDown);
       }
-      mainCanvasRef.current.style.cursor = "default";
+      mainCanvasRef.current.style.cursor = globalCursorStyle;
       break;
   }
 
@@ -51,14 +52,15 @@ export const handleCanvasToolActions = (
     );
   };
 
-  function handleMainCanvasMouseDown(e: MouseEvent){
+  function handleGeneralCanvasMouseDown(e: MouseEvent){
     handleActiveOperation(e, mainCanvasRef, recoilElements, setRecoilElements);
   }
 
 
  function onMouseMove(e: MouseEvent) {
-    if(isElementMoving) return;
-    console.log("inside mainCanvasMouse when isElementMoving is false")
+  console.log("value of isElementResizing: ", isElementResizing);
+    if(isElementMoving || isElementResizing) return; // if element is currently moving, do not go inside this function to avoid flickering
+    console.log("inside mainCanvasMouse becuase you fucked up")
     handlMainCanvasMouseMovements(e);
   }
 
@@ -66,7 +68,7 @@ export const handleCanvasToolActions = (
   return () => {
   
       mainCanvasRef.current!.removeEventListener("mousedown", handleActiveToolMouseDown);
-      mainCanvasRef.current!.removeEventListener("mousedown", handleMainCanvasMouseDown);
+      mainCanvasRef.current!.removeEventListener("mousedown", handleGeneralCanvasMouseDown);
       mainCanvasRef.current!.removeEventListener("mousemove", onMouseMove);
     
   };

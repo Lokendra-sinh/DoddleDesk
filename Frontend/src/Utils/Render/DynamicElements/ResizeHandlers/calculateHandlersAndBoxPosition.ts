@@ -10,7 +10,7 @@ let height = 0;
 
 export function calculateHandlersAndBoxPosition(element: ElementTypes | undefined) {
   if (!element) return;
-    
+  
   // Determine the current top-left and bottom-right coordinates dynamically
   startX = Math.min(element.startCoordinates!.x, element.endCoordinates!.x) || 0;
   startY = Math.min(element.startCoordinates!.y, element.endCoordinates!.y) || 0;
@@ -27,6 +27,7 @@ export function calculateHandlersAndBoxPosition(element: ElementTypes | undefine
        calculateCirclesBoundingBoxPosition();
     } 
 
+    console.log("points before inversion: ", element.points);
     updateBoundingBoxPosition();
     updateCueBallsPosition();
 }
@@ -61,6 +62,8 @@ function updateBoundingBoxPosition() {
     boundingBoxProperties.endY = endY + MARGIN_GAP;
     boundingBoxProperties.width = endX - startX + MARGIN_GAP * 2;
     boundingBoxProperties.height = endY - startY + MARGIN_GAP * 2;
+
+    console.log("boundingBoxProperties before inversion: ", boundingBoxProperties);
 }
 
 function updateCueBallsPosition(){

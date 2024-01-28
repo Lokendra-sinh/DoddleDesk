@@ -1,7 +1,6 @@
 import React from "react";
 import { ElementsContainer } from "../Types/Types";
 import { canvasElements, setCanvasElements } from "./interactionhelpers";
-import { throttle } from "lodash";
 
 let originalCanvasWidth = 0;
 let originalCanvasHeight = 0;

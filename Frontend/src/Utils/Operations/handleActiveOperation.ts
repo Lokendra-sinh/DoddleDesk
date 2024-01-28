@@ -3,6 +3,8 @@ import {
   canvasElements,
   globalCursorStyle,
   setIsElementMoving,
+  isElementResizing,
+  setIsElementResizing,
   setCanvasElements,
   cueBallsAreVisible,
   setCueBallsAreVisible,
@@ -46,6 +48,8 @@ export function handleActiveOperation(
     case "sw-resize":
     case "s-resize":
     case "se-resize":
+      setIsElementResizing(true);
+      console.log("resizing and isElementResizing: ", isElementResizing);
       handleResizeOperation(mouseDownX, mouseDownY, mainCanvasRef, setRecoilElements);
       break;
     case "default":
