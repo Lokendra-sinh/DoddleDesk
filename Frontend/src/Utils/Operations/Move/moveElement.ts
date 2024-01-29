@@ -12,7 +12,7 @@ import {
   startAnimationPreview,
   stopAnimationPreview,
 } from "../../Render/DynamicElements/handleSelectedShapeAnimation";
-import { set } from "lodash";
+
 
 let initialMouseX: number = 0;
 let initialMouseY: number = 0;
@@ -72,6 +72,26 @@ function onMouseMove(e: MouseEvent) {
   const deltaX = newMouseX - initialMouseX;
   const deltaY = newMouseY - initialMouseY;
 
+  if(activeInteractiveElement.type === "pencil"){
+    activeInteractiveElement.points = activeInteractiveElement.points!.map(point => {
+      return {
+        x: point.x + deltaX,
+        y: point.y + deltaY,
+      }
+    })
+    activeInteractiveElement.startCoordinates = {
+      x: activeInteractiveElement.startCoordinates!.x + deltaX,
+      y: activeInteractiveElement.startCoordinates!.y + deltaY,
+    };
+    activeInteractiveElement.endCoordinates = {
+      x: activeInteractiveElement.endCoordinates!.x + deltaX,
+      y: activeInteractiveElement.endCoordinates!.y + deltaY,
+    };
+    setActiveInteractiveElement(activeInteractiveElement);
+    canvasElements[activeElementIndex] = activeInteractiveElement;
+
+  } else {
+
   const updatedElement = {
     ...activeInteractiveElement,
     startCoordinates: {
@@ -86,6 +106,7 @@ function onMouseMove(e: MouseEvent) {
 
   setActiveInteractiveElement(updatedElement);
   canvasElements[activeElementIndex] = updatedElement;
+}
   initialMouseX = newMouseX;
   initialMouseY = newMouseY;
 }

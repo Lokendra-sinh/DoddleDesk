@@ -4,8 +4,8 @@ import { activeInteractiveElement, canvasElements, globalCursorStyle, setGlobalC
 import { renderSelectedShape } from "./Render/DynamicElements/renderSelectedShape";
 import { setCanvasAndRecoilState, handlMainCanvasMouseMovements } from "./Operations/handleMainCanvasMouseMovements";
 import { handleActiveOperation } from "./Operations/handleActiveOperation";
-
-
+import { handleEraserOperation } from "./Operations/Eraser/handleEraserOperation";
+import { startAnimationPreview } from "./Render/DynamicElements/handleSelectedShapeAnimation";
 
 
 
@@ -39,6 +39,12 @@ export const handleCanvasToolActions = (
       }
       mainCanvasRef.current.style.cursor = globalCursorStyle;
       break;
+    case "eraser":
+      console.log("eraser selected");
+      mainCanvasRef.current.style.cursor = "url('/src/assets/cursor-eraser.png'), auto";
+      setGlobalCursorStyle("eraser");
+      mainCanvasRef.current!.addEventListener("mousedown", handleEraserMouseDown);
+      break;
   }
 
   function handleActiveToolMouseDown(e: MouseEvent){
@@ -56,6 +62,12 @@ export const handleCanvasToolActions = (
     handleActiveOperation(e, mainCanvasRef, recoilElements, setRecoilElements);
   }
 
+  function handleEraserMouseDown(e: MouseEvent){
+    if(globalCursorStyle !== "eraser") return;
+    if (e.button !== 0) return; // to avoid right click
+    console.log("inside eraser mouse down becuase globalCursorStyle is eraser")
+    handleEraserOperation(e, mainCanvasRef, recoilElements, setRecoilElements, setSelectedTool);
+  };
 
  function onMouseMove(e: MouseEvent) {
   console.log("value of isElementResizing: ", isElementResizing);
@@ -70,6 +82,7 @@ export const handleCanvasToolActions = (
       mainCanvasRef.current!.removeEventListener("mousedown", handleActiveToolMouseDown);
       mainCanvasRef.current!.removeEventListener("mousedown", handleGeneralCanvasMouseDown);
       mainCanvasRef.current!.removeEventListener("mousemove", onMouseMove);
+      mainCanvasRef.current!.removeEventListener("mousedown", handleEraserMouseDown);
     
   };
 };
