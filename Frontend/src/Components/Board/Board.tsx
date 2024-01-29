@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import Navbar from "../Navbar/Navbar";
+import ElementStyleControlsBar from "../ElementStyleControls/ElementStyleControlsBar";
 import { useRecoilState } from "recoil";
 import { elementsAtom } from "../../Recoil/Atoms/elements";
 import { handleResize } from "../../Utils/canvasEventHandlers";
@@ -28,6 +29,7 @@ const Board: React.FC = () => {
     if(!ctx) return;
     setAnimationContext(ctx, mainCanvasRef, setRecoilElements);
     console.log("canvasElements inside useEffect: ", canvasElements);
+
     drawStaticElements(
       mainCanvasRef,
       recoilElements
@@ -43,7 +45,6 @@ const Board: React.FC = () => {
 
     return () => {
       cleanup ? cleanup() : null;
-
     };
   }, [selectedTool, recoilElements]);
 
@@ -80,6 +81,7 @@ const Board: React.FC = () => {
             className="absolute top-0 left-0 z-1"
           ></canvas>
         </div>
+        <ElementStyleControlsBar />
       </div>
     );
 };

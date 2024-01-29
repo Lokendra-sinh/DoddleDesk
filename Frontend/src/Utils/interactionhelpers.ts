@@ -30,6 +30,11 @@ export function setIsElementMoving(value: boolean){
   isElementMoving = value;
 }
 
+export let isElementResizing: boolean = false;
+export function setIsElementResizing(value: boolean){
+  isElementResizing = value;
+}
+
 export const MARGIN_GAP = 8;
 export const CIRCLE_MARGIN_GAP = 1;
 export const BALL_RADIUS = 4;

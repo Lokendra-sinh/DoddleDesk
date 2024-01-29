@@ -1,4 +1,4 @@
-import { activeForegroundElement } from "../../Components/Board/Board";
+
 import { ElementTypes } from "../../Types/Types";
 
 
@@ -8,7 +8,7 @@ export function drawPencil(
   ) {
    
     if(!ctx || !element!.points || element!.points.length < 1) return;
-
+    console.log("inside drawPencil: ", element!.points);
     ctx.beginPath();
     ctx.strokeStyle = element!.color;
     ctx.lineWidth = element!.lineWidth;
