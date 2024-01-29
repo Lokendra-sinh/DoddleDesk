@@ -26,6 +26,8 @@ export const handleResize = (
     const heightRatio = height / originalCanvasHeight;
 
     const scaledElements = canvasElements.map((element) => {
+      if (element.type === "text") return element;
+      if(!element.startCoordinates || !element.endCoordinates) return element;
       const scaledElement = {
         ...element,
         startCoordinates: {

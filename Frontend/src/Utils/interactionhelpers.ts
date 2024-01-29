@@ -13,7 +13,11 @@ export const addCanvasElement = (element: ElementTypes) => {
 };
 
 export function setCanvasElements(elements: ElementsContainer) {
-    if(!elements || elements.length === 0) return;
+    if(!elements) return;
+    if(elements.length === 0){
+      canvasElements.length = 0;
+      return;
+    }
     canvasElements.length = 0;
     elements.forEach((element) => {
     canvasElements.push(element);
@@ -35,6 +39,14 @@ export function setIsElementResizing(value: boolean){
   isElementResizing = value;
 }
 
+export const trailPointLifeSpan = 100;
+export const eraserFadeTrailPoints: {x: number, y: number, drawnTime: number}[] = [];
+export function setEraserFadeTrailPoints(points: {x: number, y: number, drawnTime: number}[]){
+  eraserFadeTrailPoints.length = 0;
+  points.forEach(point => {
+    eraserFadeTrailPoints.push(point);
+  })
+}
 export const MARGIN_GAP = 8;
 export const CIRCLE_MARGIN_GAP = 1;
 export const BALL_RADIUS = 4;
@@ -106,50 +118,3 @@ overlayForDrag.style.pointerEvents = "all";
 overlayForDrag.className = "overlay-for-dragging";
 
 document.body.appendChild(overlayForDrag);
-
-const ballWidth = "10px";
-const ballHeight = "10px";
-
-export const boundingBox = document.createElement("div");
-boundingBox.style.position = "absolute";
-boundingBox.style.zIndex = "5";
-boundingBox.style.border = "2px solid #0891b2";
-boundingBox.style.pointerEvents = "none"; // To pass click events to canvas
-boundingBox.className = "bounding-box";
-document.body.appendChild(boundingBox);
-
-export const bottomLeftCueBall = document.createElement("div");
-setCueBallProperties(bottomLeftCueBall, "bottom-left-cue-ball");
-export const bottomMiddleCueBall = document.createElement("div");
-setCueBallProperties(bottomMiddleCueBall, "bottom-middle-cue-ball");
-export const bottomRightCueBall = document.createElement("div");
-setCueBallProperties(bottomRightCueBall, "bottom-right-cue-ball");
-export const leftMiddleCueBall = document.createElement("div");
-setCueBallProperties(leftMiddleCueBall, "left-middle-cue-ball");
-export const rightMiddleCueBall = document.createElement("div");
-setCueBallProperties(rightMiddleCueBall, "right-middle-cue-ball");
-export const topLeftCueBall = document.createElement("div");
-setCueBallProperties(topLeftCueBall, "top-left-cue-ball");
-export const topMiddleCueBall = document.createElement("div");
-setCueBallProperties(topMiddleCueBall, "top-middle-cue-ball");
-export const topRightCueBall = document.createElement("div");
-setCueBallProperties(topRightCueBall, "top-right-cue-ball");
-
-
-
-function setCueBallProperties(
-  cueBall: HTMLDivElement,
-  cueBallName: string,
-) {
-  cueBall.style.position = "absolute";
-  cueBall.style.zIndex = "5";
-  cueBall.style.border = "1px solid #0891b2";
-  cueBall.style.width = ballWidth;
-  cueBall.style.height = ballHeight;
-  cueBall.style.borderRadius = "30%";
-  cueBall.style.backgroundColor = "white";
-  cueBall.style.pointerEvents = "auto";
-  cueBall.style.display = "none";
-  cueBall.className = `${cueBallName} resize-handle`;
-  document.body.appendChild(cueBall);
-}

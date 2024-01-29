@@ -10,11 +10,10 @@ import { currentTool } from "../../Recoil/Atoms/tools";
 import { handleCanvasToolActions } from "../../Utils/handleCanvasToolActions";
 import { debounce } from "lodash";
 import { drawStaticElements } from "../../Utils/Render/StaticElements/drawStaticElements";
-import { setAnimationContext } from "../../Utils/Render/DynamicElements/handleSelectedShapeAnimation";
+import { setAnimationContext, stopAnimationPreview } from "../../Utils/Render/DynamicElements/handleSelectedShapeAnimation";
 import { canvasElements } from "../../Utils/interactionhelpers";
 
 const Board: React.FC = () => {
-  console.log("rendering board");
   const [selectedTool, setSelectedTool] = useRecoilState<string>(currentTool);
   const [recoilElements, setRecoilElements] =
     useRecoilState<ElementsContainer>(elementsAtom);
@@ -24,7 +23,7 @@ const Board: React.FC = () => {
 
   useEffect(() => {
     if(!mainCanvasRef.current) return;
-    console.log("recoilElements inside useEffect: ", recoilElements);
+    console.log("board rendered");
     const ctx = mainCanvasRef.current.getContext("2d");
     if(!ctx) return;
     setAnimationContext(ctx, mainCanvasRef, setRecoilElements);
@@ -34,6 +33,7 @@ const Board: React.FC = () => {
       mainCanvasRef,
       recoilElements
     );
+
 
     const cleanup = handleCanvasToolActions(
       mainCanvasRef,
@@ -45,6 +45,7 @@ const Board: React.FC = () => {
 
     return () => {
       cleanup ? cleanup() : null;
+
     };
   }, [selectedTool, recoilElements]);
 
@@ -66,8 +67,14 @@ const Board: React.FC = () => {
   
 
     window.addEventListener("resize", debouncedResize);
+    mainCanvasRef.current!.addEventListener('contextmenu', function(event) {
+      event.preventDefault();
+  });
     return () => {
       window.removeEventListener("resize", debouncedResize);
+      mainCanvasRef.current!.removeEventListener('contextmenu', function(event) {
+        event.preventDefault();
+    });
     };
   }, []);
 

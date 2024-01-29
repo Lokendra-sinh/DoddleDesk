@@ -1,4 +1,4 @@
-import { activeForegroundElement } from "../../Components/Board/Board";
+
 import { ElementTypes } from "../../Types/Types";
 
 
@@ -18,7 +18,6 @@ export function drawEllipse(
 
 
   ctx.beginPath();
-  ctx.fillStyle = element!.color;
   ctx.lineWidth = element!.lineWidth;
   ctx.ellipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI);
   ctx.strokeStyle = element!.color;

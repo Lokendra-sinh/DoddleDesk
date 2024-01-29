@@ -17,8 +17,8 @@ export function drawStaticElements(
     if(!mainCanvasContext) return;
     mainCanvasContext.clearRect(0, 0, mainCanvasContext.canvas.width, mainCanvasContext.canvas.height);
   
-    console.log("recoilElements in drawStaticElements: ", recoilElements);
-    console.log("canvasElements inside drawStaticElements: ", canvasElements);
+    console.log("inside draw static elements")
+    console.log("recoil elements: ", recoilElements);
   
     recoilElements.forEach(element => {
         if(element.type === "text") return;

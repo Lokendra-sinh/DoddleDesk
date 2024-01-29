@@ -24,28 +24,31 @@ export type ToolProperties = {
     size: number,
 };
 
-export type ElementTypes = {
-    id: string,
-    type: string,
-    startCoordinates?: Position,
-    endCoordinates?: Position,
-    points?: Position[],
-    color: string,
-    lineWidth: number | 1,
-    text?: "",
-    fontSize?: 0,
-    fontFamily?: "",
-    isFilled?: boolean,
-    isStroked?: boolean,
-    isText?: boolean,
-    isErased?: boolean,
-    isDragged?: boolean,
-    isResized?: boolean,
-    isRotated?: boolean,
-    isDeleted?: boolean,
-    isDrawn?: boolean,
-    isActive: boolean,
-    zIndex: number,
+export interface ElementTypes {
+    id: string;
+    type: string;
+    startCoordinates?: Position;
+    endCoordinates?: Position;
+    points?: Position[];
+    color: string;
+    lineWidth: number;
+    text?: string;
+    fontSize?: number;
+    fontFamily?: string;
+    isFilled?: boolean;
+    isStroked?: boolean;
+    isText?: boolean;
+    isErased?: boolean;
+    isDragged?: boolean;
+    isResized?: boolean;
+    isRotated?: boolean;
+    isDeleted?: boolean;
+    isDrawn?: boolean;
+    toBeErased?: boolean;
+    isActive: boolean;
+    zIndex: number;
 }
 
 export type ElementsContainer = ElementTypes[];
+
+export type EraserFadeTrailPoints = {x: number, y: number}[];

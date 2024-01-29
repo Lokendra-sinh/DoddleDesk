@@ -1,19 +1,24 @@
 import {
-  activeInteractiveElement,
+  eraserFadeTrailPoints,
+  setEraserFadeTrailPoints,
+  trailPointLifeSpan,
   canvasElements,
 } from "../../interactionhelpers";
-import { ElementTypes, ElementsContainer, } from "../../../Types/Types";
+import { ElementTypes, ElementsContainer } from "../../../Types/Types";
 import { drawCircle } from "../../shapes/circle";
 import { drawEllipse } from "../../shapes/ellipse";
 import { drawRectangle } from "../../shapes/rectangle";
 import { drawBiSquare } from "../../shapes/biSquare";
 import { drawPencil } from "../../shapes/pencil";
-import { handleResizeHandlesAndBoundingBox } from "../DynamicElements/ResizeHandlers/handleResizeHandlesAndBoundingBox"
+import { handleResizeHandlesAndBoundingBox } from "../DynamicElements/ResizeHandlers/handleResizeHandlesAndBoundingBox";
+import { drawEraserTrail } from "../../shapes/eraserTrail";
 
 let animationId: number | null = null;
 let canvasContext: CanvasRenderingContext2D;
 let canvasRef: React.RefObject<HTMLCanvasElement>;
-let setNewRecoilElements: React.Dispatch<React.SetStateAction<ElementsContainer>>;
+let setNewRecoilElements: React.Dispatch<
+  React.SetStateAction<ElementsContainer>
+>;
 
 export function setAnimationContext(
   animationCanvasRenderContext: CanvasRenderingContext2D,
@@ -35,43 +40,49 @@ function animate() {
     canvasContext.canvas.height
   );
 
+  if(canvasElements.length !== 0){
   canvasElements.forEach((element) => {
     renderElement(element);
   });
+  }
+  if(eraserFadeTrailPoints.length !== 0){
+    drawEraserTrail(canvasRef, canvasContext);
+    // const filteredPoints = eraserFadeTrailPoints.filter(point => (Date.now() - point.drawnTime) < trailPointLifeSpan);
+    // setEraserFadeTrailPoints(filteredPoints);
+  }
+
 }
 
 function renderElement(element: ElementTypes) {
-    // if(!activeInteractiveElement) return;
+  // if(!activeInteractiveElement) return;
 
-    // if (activeInteractiveElement.type === "text") return;
+  // if (activeInteractiveElement.type === "text") return;
 
-    switch (element.type) {
-      case "circle":
-        drawCircle(canvasContext, element);
-        break;
-      case "ellipse":
-        drawEllipse(canvasContext, element);
-        break;
-      case "rectangle":
-        drawRectangle(canvasContext, element);
-        break;
-      case "biSquare":
-        drawBiSquare(canvasContext, element);
-        break;
-      case "pencil":
-        drawPencil(canvasContext, element);
-        break;
-      case "text":
-        break;
-    }
+  console.log("element color: ", element.color);
 
-    if (element.isActive) {
-      handleResizeHandlesAndBoundingBox(
-        canvasContext,
-        canvasRef,
-        element,
-      );
-    }
+  switch (element.type) {
+    case "circle":
+      drawCircle(canvasContext, element);
+      break;
+    case "ellipse":
+      drawEllipse(canvasContext, element);
+      break;
+    case "rectangle":
+      drawRectangle(canvasContext, element);
+      break;
+    case "biSquare":
+      drawBiSquare(canvasContext, element);
+      break;
+    case "pencil":
+      drawPencil(canvasContext, element);
+      break;
+    case "text":
+      break;
+  }
+
+  if (element.isActive) {
+    handleResizeHandlesAndBoundingBox(canvasContext, canvasRef, element);
+  }
 }
 
 export function startAnimationPreview() {
