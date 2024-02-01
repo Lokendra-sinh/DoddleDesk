@@ -1,4 +1,3 @@
-import { activeForegroundElement } from "../../Components/Board/Board";
 import { ElementTypes } from "../../Types/Types";
 
 export function drawBiSquare(
@@ -23,7 +22,9 @@ export function drawBiSquare(
     const effectiveCornerRadius = Math.min(cornerRadius, width / 3, height / 3);
 
     ctx.beginPath();
-  
+    ctx.strokeStyle = element.strokeColor;
+  ctx.lineWidth = element.strokeWidth ? element.strokeWidth : 2;
+  ctx.fillStyle = element.fillColor ? element.fillColor : "transparent";
     //top-left corner
     ctx.moveTo(startX + effectiveCornerRadius, startY);
   
@@ -68,6 +69,5 @@ export function drawBiSquare(
     );
   
     ctx.closePath();
-    ctx.strokeStyle = element.color;
     ctx.stroke();
   }

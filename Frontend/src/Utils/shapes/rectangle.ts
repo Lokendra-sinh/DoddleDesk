@@ -1,4 +1,4 @@
-import { activeForegroundElement } from "../../Components/Board/Board";
+
 import { ElementTypes } from "../../Types/Types";
 
 
@@ -11,9 +11,9 @@ export function drawRectangle(
     if (!ctx) return;
     const { startCoordinates, endCoordinates } = element!;
     if (!startCoordinates || !endCoordinates) return;
-
-    ctx.strokeStyle = element!.color;
-    ctx.lineWidth = element!.lineWidth;
+    ctx.strokeStyle = element.strokeColor;
+    ctx.lineWidth = element.strokeWidth ? element.strokeWidth : 2;
+    ctx.fillStyle = element.fillColor ? element.fillColor : "transparent";
     ctx.strokeRect(
       startCoordinates.x,
       startCoordinates.y,

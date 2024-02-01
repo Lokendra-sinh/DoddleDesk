@@ -1,6 +1,7 @@
 import React from "react";
 import { ElementsContainer } from "../Types/Types";
 import { canvasElements, setCanvasElements } from "./interactionhelpers";
+import { over } from "lodash";
 
 let originalCanvasWidth = 0;
 let originalCanvasHeight = 0;
@@ -14,9 +15,18 @@ export const handleResize = (
   const mainCanvasContext = mainCanvasRef.current.getContext("2d");
   if (!mainCanvasContext) return;
 
+  // reset overlay div element 
+  let overlayDiv = document.querySelector(".overlay-for-dragging") as HTMLDivElement;
+  if(overlayDiv){
+    overlayDiv.style.display = "none";
+    overlayDiv.style.width = `{document.documentElement.clientWidth}`;
+    overlayDiv.style.height = `{document.documentElement.clientHeight}`;
+  }
+
+
     const dpi = window.devicePixelRatio || 1;
     const width = document.documentElement.clientWidth * dpi;
-    const height = (document.documentElement.clientHeight - 56) * dpi; // Adjust navbarHeight accordingly
+    const height = (document.documentElement.clientHeight) * dpi; // Adjust navbarHeight accordingly
   
     mainCanvasRef.current.width = width;
     mainCanvasRef.current.height = height;
@@ -53,14 +63,17 @@ export const handleResize = (
 
 export function initiateCanvas(
   mainCanvasRef: React.RefObject<HTMLCanvasElement>,
+  tempCanvasRef: React.RefObject<HTMLCanvasElement>,
 ) {
-  if (!mainCanvasRef.current) return;
+  if (!mainCanvasRef.current || !tempCanvasRef.current) return;
   const mainCanvasContext = mainCanvasRef.current.getContext("2d");
-  if (!mainCanvasContext) return;
+  const tempCanvasContext = tempCanvasRef.current.getContext("2d");
+  if (!mainCanvasContext || !tempCanvasContext) return;
+  tempCanvasRef.current.style.display = "none";
   
   const dpi = window.devicePixelRatio || 1;
   const width = document.documentElement.clientWidth * dpi;
-  const height = (document.documentElement.clientHeight - 56) * dpi; // Adjust navbarHeight accordingly
+  const height = (document.documentElement.clientHeight) * dpi; // Adjust navbarHeight accordingly
 
   originalCanvasHeight = height;
   originalCanvasWidth = width;
@@ -68,5 +81,6 @@ export function initiateCanvas(
   mainCanvasRef.current.width = width;
   mainCanvasRef.current.height = height;
   mainCanvasRef.current.getContext("2d")?.scale(dpi, dpi);
+  mainCanvasContext.fillStyle = "white";
   
 }

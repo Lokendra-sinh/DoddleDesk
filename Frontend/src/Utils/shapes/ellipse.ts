@@ -18,8 +18,10 @@ export function drawEllipse(
 
 
   ctx.beginPath();
-  ctx.lineWidth = element!.lineWidth;
   ctx.ellipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI);
-  ctx.strokeStyle = element!.color;
-  ctx.stroke();
+  ctx.strokeStyle = element.strokeColor;
+  ctx.lineWidth = element.strokeWidth ? element.strokeWidth : 2;
+  ctx.fillStyle = element.fillColor;
+  ctx.fill();
+  ctx.stroke(); 
 }

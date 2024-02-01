@@ -1,9 +1,0 @@
-
-
-.control-bar{
-    position: absolute;
-    bottom: 10px;
-    left: 47%;
-    translate: translateX(-50%);
-    display: flex;
-}

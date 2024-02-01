@@ -1,6 +1,5 @@
 import { ElementTypes, ElementsContainer } from "../../Types/Types";
 import {
-  activeInteractiveElement,
   canvasElements,
   cueBallProperties,
   boundingBoxProperties,
@@ -9,27 +8,26 @@ import {
   cueBallsAreVisible,
   globalCursorStyle,
   setGlobalCursorStyle,
-  setActiveInteractiveElement,
   isElementResizing,
 } from "../interactionhelpers";
 
 let mouseX: number = 0;
 let mouseY: number = 0;
 let canvasRef: React.RefObject<HTMLCanvasElement>;
-let newRecoilElements: ElementsContainer;
-let setNewRecoilElements: React.Dispatch<
+let newAppElements: ElementsContainer;
+let setNewAppElements: React.Dispatch<
   React.SetStateAction<ElementsContainer>
 >;
 
 export function setCanvasAndRecoilState(
   mainCanvasRef: React.RefObject<HTMLCanvasElement>,
-  recoilElements: ElementsContainer,
-  setRecoilElements: React.Dispatch<React.SetStateAction<ElementsContainer>>
+  appElements: ElementsContainer,
+  setAppElements: React.Dispatch<React.SetStateAction<ElementsContainer>>
 ) {
-  if (!mainCanvasRef.current || recoilElements.length === 0) return;
+  if (!mainCanvasRef.current || appElements.length === 0) return;
   canvasRef = mainCanvasRef;
-  newRecoilElements = recoilElements;
-  setNewRecoilElements = setRecoilElements;
+  newAppElements = appElements;
+  setNewAppElements = setAppElements;
 }
 
 export function handlMainCanvasMouseMovements(e: MouseEvent) {

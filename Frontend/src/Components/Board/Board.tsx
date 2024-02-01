@@ -1,8 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import Navbar from "../Navbar/Navbar";
-import ElementStyleControlsBar from "../ElementStyleControls/ElementStyleControlsBar";
+import { ElementStyleControlsPanel } from "../Panel/SidePanel/ElementStyleControlsPanel";
 import { useRecoilState } from "recoil";
-import { elementsAtom } from "../../Recoil/Atoms/elements";
+import {
+  DoddleDeskElements,
+  currentActiveElementOnCanvas,
+} from "../../Recoil/Atoms/elements";
 import { handleResize } from "../../Utils/canvasEventHandlers";
 import { initiateCanvas } from "../../Utils/canvasEventHandlers";
 import { ElementsContainer, ElementTypes } from "../../Types/Types";
@@ -10,87 +13,109 @@ import { currentTool } from "../../Recoil/Atoms/tools";
 import { handleCanvasToolActions } from "../../Utils/handleCanvasToolActions";
 import { debounce } from "lodash";
 import { drawStaticElements } from "../../Utils/Render/StaticElements/drawStaticElements";
-import { setAnimationContext, stopAnimationPreview } from "../../Utils/Render/DynamicElements/handleSelectedShapeAnimation";
-import { canvasElements } from "../../Utils/interactionhelpers";
+import {
+  setAnimationContext,
+  stopAnimationPreview,
+} from "../../Utils/Render/DynamicElements/handleSelectedShapeAnimation";
+import {
+  canvasElements,
+  blinkingCursorIntervalId,
+} from "../../Utils/interactionhelpers";
 
 const Board: React.FC = () => {
   const [selectedTool, setSelectedTool] = useRecoilState<string>(currentTool);
-  const [recoilElements, setRecoilElements] =
-    useRecoilState<ElementsContainer>(elementsAtom);
+  const [isSidePanelOpen, setIsSidePanelOpen] = useState<boolean>(false);
+  const [appElements, setAppElements] =
+    useRecoilState<ElementsContainer>(DoddleDeskElements);
+  const [activeCanvasElement, setActiveCanvasElement] =
+    useRecoilState<ElementTypes | null>(currentActiveElementOnCanvas);
   const mainCanvasRef = useRef<HTMLCanvasElement | null>(null);
-
-
+  const overlayCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
-    if(!mainCanvasRef.current) return;
+    if (!mainCanvasRef.current) return;
     console.log("board rendered");
     const ctx = mainCanvasRef.current.getContext("2d");
-    if(!ctx) return;
-    setAnimationContext(ctx, mainCanvasRef, setRecoilElements);
-    console.log("canvasElements inside useEffect: ", canvasElements);
+    if (!ctx) return;
+    setAnimationContext(ctx, mainCanvasRef, setAppElements);
 
     drawStaticElements(
       mainCanvasRef,
-      recoilElements
+      appElements,
+      activeCanvasElement,
+      setActiveCanvasElement,
+      setIsSidePanelOpen
     );
-
 
     const cleanup = handleCanvasToolActions(
       mainCanvasRef,
+      overlayCanvasRef,
       selectedTool,
       setSelectedTool,
-      setRecoilElements,
-      recoilElements
+      setAppElements,
+      appElements,
+      activeCanvasElement,
+      setActiveCanvasElement,
+      setIsSidePanelOpen
     );
 
     return () => {
       cleanup ? cleanup() : null;
-
+      clearInterval(blinkingCursorIntervalId);
     };
-  }, [selectedTool, recoilElements]);
+  }, [selectedTool, appElements]);
 
   useEffect(() => {
-    console.log("inside useEffect as component mounts");
+    console.log("componet did mount");
 
-    initiateCanvas(
-      mainCanvasRef
-    );
+    initiateCanvas(mainCanvasRef, overlayCanvasRef);
 
     const resizeClosure = () => {
-      handleResize(
-        mainCanvasRef,
-        recoilElements,
-        setRecoilElements
-      );
-    }
+      handleResize(mainCanvasRef, appElements, setAppElements);
+    };
     const debouncedResize = debounce(resizeClosure, 20);
-  
 
     window.addEventListener("resize", debouncedResize);
-    mainCanvasRef.current!.addEventListener('contextmenu', function(event) {
+    mainCanvasRef.current!.addEventListener("contextmenu", function (event) {
       event.preventDefault();
-  });
-    return () => {
-      window.removeEventListener("resize", debouncedResize);
-      mainCanvasRef.current!.removeEventListener('contextmenu', function(event) {
-        event.preventDefault();
     });
+    return () => {
+      clearInterval(blinkingCursorIntervalId);
+      window.removeEventListener("resize", debouncedResize);
+      mainCanvasRef.current!.removeEventListener(
+        "contextmenu",
+        function (event) {
+          event.preventDefault();
+        }
+      );
     };
   }, []);
 
   return (
-      <div className="relative flex flex-col bg-white">
-        <Navbar />
-        <div id="canvas-container" className="relative w-screen h-[950px] overflow-auto overflow-x-hidden">
-          <canvas
-            ref={mainCanvasRef}
-            id="main-canvas"
-            className="absolute top-0 left-0 z-1"
-          ></canvas>
-        </div>
-        <ElementStyleControlsBar />
+    <div className="relative flex flex-col bg-white">
+      <Navbar
+        isSidePanelOpen={isSidePanelOpen}
+        setIsSidePanelOpen={setIsSidePanelOpen}
+      />
+      <div
+        id="canvas-container"
+        className="relative w-screen h-screen overflow-auto overflow-x-hidden"
+      >
+        <canvas
+          ref={mainCanvasRef}
+          id="main-canvas"
+          className="absolute top-0 left-0 z-5"
+        ></canvas>
+
+        <canvas
+          ref={overlayCanvasRef}
+          id="overlay-canvas"
+          className="absolute top-0 left-0 z-5"
+        ></canvas>
       </div>
-    );
+      {isSidePanelOpen && <ElementStyleControlsPanel />}
+    </div>
+  );
 };
 
 export default Board;

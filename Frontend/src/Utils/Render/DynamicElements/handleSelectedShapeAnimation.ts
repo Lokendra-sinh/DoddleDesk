@@ -1,7 +1,5 @@
 import {
   eraserFadeTrailPoints,
-  setEraserFadeTrailPoints,
-  trailPointLifeSpan,
   canvasElements,
 } from "../../interactionhelpers";
 import { ElementTypes, ElementsContainer } from "../../../Types/Types";
@@ -47,18 +45,12 @@ function animate() {
   }
   if(eraserFadeTrailPoints.length !== 0){
     drawEraserTrail(canvasRef, canvasContext);
-    // const filteredPoints = eraserFadeTrailPoints.filter(point => (Date.now() - point.drawnTime) < trailPointLifeSpan);
-    // setEraserFadeTrailPoints(filteredPoints);
   }
 
 }
 
 function renderElement(element: ElementTypes) {
-  // if(!activeInteractiveElement) return;
-
-  // if (activeInteractiveElement.type === "text") return;
-
-  console.log("element color: ", element.color);
+  if (!canvasContext || !canvasRef) return;
 
   switch (element.type) {
     case "circle":

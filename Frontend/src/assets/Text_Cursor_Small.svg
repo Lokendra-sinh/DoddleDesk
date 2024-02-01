@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="40">
+    <!-- Vertical Line -->
+    <line xmlns="http://www.w3.org/2000/svg" x1="10" y1="5" x2="10" y2="20" stroke="black" stroke-width="2"/>
+    <!-- Top Horizontal Line -->
+    <line x1="5" y1="5" x2="15" y2="5" stroke="black" stroke-width="2"/>
+    <!-- Bottom Horizontal Line -->
+    <line xmlns="http://www.w3.org/2000/svg" x1="5" y1="20     " x2="15" y2="20" stroke="black" stroke-width="2"/>
+</svg>

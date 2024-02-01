@@ -2,12 +2,13 @@ import { ElementsContainer, ElementTypes } from "../../../Types/Types"
 import {
   canvasElements,
   addCanvasElement,
-  setActiveInteractiveElement,
   setCueBallsAreVisible,
+  overlayForDrag,
 } from "../../interactionhelpers";
 import { setAnimationContext, startAnimationPreview, stopAnimationPreview } from "./handleSelectedShapeAnimation";
 import { v4 as uuidv4 } from "uuid";
 import { cloneDeep, throttle } from "lodash";
+import { undoStack } from "../../interactionhelpers";
 
 let allowDrawing = false;
 let distanceChecked = false;
@@ -22,8 +23,9 @@ let currentTool: string;
 let minPencilCoordinates: { x: number; y: number } | undefined = { x: 0, y: 0 };
 let maxPencilCoordinates: { x: number; y: number } | undefined  = { x: 0, y: 0 };
 let setSelectedTool: React.Dispatch<React.SetStateAction<string>>;
-let setRecoilElements: React.Dispatch<React.SetStateAction<ElementsContainer>>;
-
+let setAppElements: React.Dispatch<React.SetStateAction<ElementsContainer>>;
+let setSidePanelVisibility: React.Dispatch<React.SetStateAction<boolean>>;
+let setActiveElement: React.Dispatch<React.SetStateAction<ElementTypes | null>>;
 
 function calculateDistance(x1: number, y1: number, x2: number, y2: number) {
   return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
@@ -52,8 +54,20 @@ function initializeNewElement(e: MouseEvent) {
           currentTool === "pencil"
             ? [{ x: mainCanvasX, y: mainCanvasY }]
             : undefined,
-        color: "#4b5563",
-        lineWidth: 2,
+        strokeColor: "#4b5563",
+        fillColor: "transparent",
+        opacity: 1,
+        strokeWidth: 2,
+        isFilled: false,
+        isStroked: true,
+        isText: false,
+        isErased: false,
+        isDragged: false,
+        isResized: false,
+        isRotated: false,
+        isDeleted: false,
+        isDrawn: false,
+        toBeErased: false,
         isActive: false,
         zIndex: stackingOrder++,
       };
@@ -64,28 +78,32 @@ export function renderSelectedShape(
   mainCanvasRef: React.RefObject<HTMLCanvasElement>,
   selectedTool: string,
   toolSetterFunction: React.Dispatch<React.SetStateAction<string>>,
-  recoilElementsSetter: React.Dispatch<React.SetStateAction<ElementsContainer>>
+  recoilElementsSetter: React.Dispatch<React.SetStateAction<ElementsContainer>>,
+  setIsSidePanelOpen: React.Dispatch<React.SetStateAction<boolean>>,
+  setActiveCanvasElement: React.Dispatch<React.SetStateAction<ElementTypes | null>>,
 ) {
   e.stopPropagation();
   if (!mainCanvasRef.current) return;
   allowDrawing = true;
   currentTool = selectedTool;
   setSelectedTool = toolSetterFunction;
-  setRecoilElements = recoilElementsSetter;
+  setAppElements = recoilElementsSetter;
+  setSidePanelVisibility = setIsSidePanelOpen;
+  setActiveElement = setActiveCanvasElement;
   currentCanvasRef = mainCanvasRef;
   currentCanvasContext = mainCanvasRef.current.getContext("2d")!;
 
 
   initializeNewElement(e);
 
-  console.log("tempElement: ", tempElement);
-
+  overlayForDrag.style.display = "block";
+  overlayForDrag.style.cursor = "crosshair";
   if(currentTool === "pencil"){
-    document.addEventListener("mousemove", throttle(onMouseMove, 20));
+    overlayForDrag.addEventListener("mousemove", throttle(onMouseMove, 20));
   } else {
-    document.addEventListener("mousemove", onMouseMove);
+    overlayForDrag.addEventListener("mousemove", onMouseMove);
   }
-  document.addEventListener("mouseup", onMouseUp);
+  overlayForDrag.addEventListener("mouseup", onMouseUp);
 }
 
 function onMouseMove(e: MouseEvent) {
@@ -126,7 +144,7 @@ if(currentTool !== "pencil" && currentTool !== "text"){
         addCanvasElement(tempElement);
         elementIndex = canvasElements.length - 1;
     }
-    setAnimationContext(currentCanvasContext, currentCanvasRef, setRecoilElements);
+    setAnimationContext(currentCanvasContext, currentCanvasRef, setAppElements);
     startAnimationPreview();
     animationStarted = true;
 }
@@ -142,24 +160,27 @@ function onMouseUp(e: MouseEvent) {
   console.log("Mouse up when tool is: ", currentTool);
   e.stopPropagation();
   if (!currentCanvasRef.current || !allowDrawing || !animationStarted) return; // don't do anything if actual drawing didn't happen
-
+  overlayForDrag.style.display = "none";
   stopAnimationPreview();
   setCueBallsAreVisible(true);
-  document.removeEventListener("mousemove", onMouseMove);
-  document.removeEventListener("mouseup", onMouseUp);
+  overlayForDrag.removeEventListener("mousemove", onMouseMove);
+  overlayForDrag.removeEventListener("mouseup", onMouseUp);
+  if(currentTool === "pencil"){
+    tempElement.isActive = false;
+  } else {
   tempElement.isActive = true;
+  }
 
   organizeElement();
 
   canvasElements[elementIndex] = tempElement;
-  console.log("canvasElements: ", canvasElements);
-  console.log("canvasElements[elementIndex]: ", canvasElements[elementIndex]);
-  console.log("temp element: ", tempElement);
+  undoStack.push(canvasElements[elementIndex]);
   animationStarted = false;
   allowDrawing = false;
   distanceChecked = false;
   elementIndex = -1;
-  setRecoilElements(() => [...canvasElements]);
+  setActiveElement(tempElement);
+  setAppElements(() => [...canvasElements]);
   if(currentTool === "pencil"){
     setSelectedTool("pencil");
   } else {
@@ -169,7 +190,6 @@ function onMouseUp(e: MouseEvent) {
 
 
 function organizeElement() {
-  console.log("inside organizeElement: ", tempElement);
   const { startCoordinates, endCoordinates } = cloneDeep(tempElement);
   
   if (!startCoordinates || !endCoordinates) return;
@@ -177,7 +197,6 @@ function organizeElement() {
   if(currentTool === "pencil"){
     tempElement.startCoordinates = minPencilCoordinates;
     tempElement.endCoordinates = maxPencilCoordinates;
-    console.log("pencil coords just after drawing: ", tempElement);
     return;
   }
 

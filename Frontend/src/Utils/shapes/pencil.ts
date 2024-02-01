@@ -10,9 +10,11 @@ export function drawPencil(
     if(!ctx || !element!.points || element!.points.length < 1) return;
     console.log("inside drawPencil: ", element!.points);
     ctx.beginPath();
-    ctx.strokeStyle = element!.color;
-    ctx.lineWidth = element!.lineWidth;
+    ctx.strokeStyle = element.strokeColor;
+  ctx.lineWidth = element.strokeWidth ? element.strokeWidth : 2;
     ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    
 
     ctx.moveTo(element!.points[0].x, element!.points[0].y);
 

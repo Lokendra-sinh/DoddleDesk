@@ -27,9 +27,8 @@ export function calculateHandlersAndBoxPosition(element: ElementTypes | undefine
        calculateCirclesBoundingBoxPosition();
     } 
 
-    console.log("points before inversion: ", element.points);
     updateBoundingBoxPosition();
-    updateCueBallsPosition();
+    updateCueBallsPosition(element);
 }
 
 
@@ -66,39 +65,48 @@ function updateBoundingBoxPosition() {
     console.log("boundingBoxProperties before inversion: ", boundingBoxProperties);
 }
 
-function updateCueBallsPosition(){
+function updateCueBallsPosition(element: ElementTypes){
 
     // Top Left
     cueBallProperties.topLeft.x = boundingBoxProperties.startX - BALL_RADIUS;
     cueBallProperties.topLeft.y = boundingBoxProperties.startY - BALL_RADIUS;
 
+     // Top Right
+     cueBallProperties.topRight.x = boundingBoxProperties.endX - BALL_RADIUS;
+     cueBallProperties.topRight.y = boundingBoxProperties.startY - BALL_RADIUS;
+ 
+ 
+ 
+     // Bottom Left
+     cueBallProperties.bottomLeft.x = boundingBoxProperties.startX - BALL_RADIUS;
+     cueBallProperties.bottomLeft.y = boundingBoxProperties.endY - BALL_RADIUS;
+ 
+    
+     // Bottom Right
+     cueBallProperties.bottomRight.x = boundingBoxProperties.endX - BALL_RADIUS;
+     cueBallProperties.bottomRight.y = boundingBoxProperties.endY - BALL_RADIUS;
+
+    
+    if(element.type !== "text"){
+
     // Top Middle
     cueBallProperties.topMiddle.x = boundingBoxProperties.startX + boundingBoxProperties.width / 2 - BALL_RADIUS;
     cueBallProperties.topMiddle.y = boundingBoxProperties.startY - BALL_RADIUS;
 
-    // Top Right
-    cueBallProperties.topRight.x = boundingBoxProperties.endX - BALL_RADIUS;
-    cueBallProperties.topRight.y = boundingBoxProperties.startY - BALL_RADIUS;
-
-    // Left Middle
-    cueBallProperties.leftMiddle.x = boundingBoxProperties.startX - BALL_RADIUS;
-    cueBallProperties.leftMiddle.y = boundingBoxProperties.startY + boundingBoxProperties.height / 2 - BALL_RADIUS;
-
-    // Right Middle
+     // Left Middle
+     cueBallProperties.leftMiddle.x = boundingBoxProperties.startX - BALL_RADIUS;
+     cueBallProperties.leftMiddle.y = boundingBoxProperties.startY + boundingBoxProperties.height / 2 - BALL_RADIUS;
+    
+      // Right Middle
     cueBallProperties.rightMiddle.x = boundingBoxProperties.endX - BALL_RADIUS;
     cueBallProperties.rightMiddle.y = boundingBoxProperties.startY + boundingBoxProperties.height / 2 - BALL_RADIUS;
 
-    // Bottom Left
-    cueBallProperties.bottomLeft.x = boundingBoxProperties.startX - BALL_RADIUS;
-    cueBallProperties.bottomLeft.y = boundingBoxProperties.endY - BALL_RADIUS;
 
-    // Bottom Middle
-    cueBallProperties.bottomMiddle.x = boundingBoxProperties.startX + boundingBoxProperties.width / 2 - BALL_RADIUS;
-    cueBallProperties.bottomMiddle.y = boundingBoxProperties.endY - BALL_RADIUS;
+     // Bottom Middle
+     cueBallProperties.bottomMiddle.x = boundingBoxProperties.startX + boundingBoxProperties.width / 2 - BALL_RADIUS;
+     cueBallProperties.bottomMiddle.y = boundingBoxProperties.endY - BALL_RADIUS;
 
-    // Bottom Right
-    cueBallProperties.bottomRight.x = boundingBoxProperties.endX - BALL_RADIUS;
-    cueBallProperties.bottomRight.y = boundingBoxProperties.endY - BALL_RADIUS;
+    }
 
     
 }

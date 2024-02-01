@@ -12,25 +12,63 @@ import { IoCaretBackSharp } from "react-icons/io5";
 import { VscCircleLarge } from "react-icons/vsc";
 import { currentTool } from "../../Recoil/Atoms/tools";
 import { useRecoilState } from "recoil";
-import { elementsAtom } from "../../Recoil/Atoms/elements";
+import { DoddleDeskElements } from "../../Recoil/Atoms/elements";
 import { ElementsContainer } from "../../Types/Types";
-import { canvasElements, setCueBallsAreVisible } from "../../Utils/interactionhelpers";
+import {
+  canvasElements,
+  setCanvasElements,
+  setCueBallsAreVisible,
+  undoStack, 
+  redoStack,
+} from "../../Utils/interactionhelpers";
 
-const Toolbar: React.FC = () => {
+interface ToolbarProps {
+  isSidePanelOpen: boolean;
+  setIsSidePanelOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const Toolbar: React.FC<ToolbarProps> = ({
+  isSidePanelOpen,
+  setIsSidePanelOpen,
+}) => {
   const [selectedTool, setSelectedTool] = useRecoilState<string>(currentTool);
-  const [recoilElements, setRecoilElements] =
-  useRecoilState<ElementsContainer>(elementsAtom);
+  const [appElements, setAppElements] =
+    useRecoilState<ElementsContainer>(DoddleDeskElements);
   const [isShapesMenuOpen, setIsShapesMenuOpen] = useState<boolean>(false);
 
   const setToolAndActiveElementId = (tool: string) => {
-    setSelectedTool(tool);
     canvasElements.forEach((element, index) => {
       canvasElements[index] = { ...element, isActive: false };
     });
+    setIsShapesMenuOpen(false);
+    setSelectedTool(tool);
     setCueBallsAreVisible(false);
-    setRecoilElements(() => [...canvasElements]);
-
+    setIsShapesMenuOpen(false);
+    setIsSidePanelOpen(true);
+    setAppElements([...canvasElements]);
   };
+
+
+  const handleUndoOperation = () => {
+    const lastElement = undoStack.pop();
+    if (lastElement) {
+     redoStack.push(lastElement);
+     const newElementsAfterUndoOperation = canvasElements.filter(Element => Element.id !== lastElement.id);
+     setCanvasElements(newElementsAfterUndoOperation);
+     setAppElements(() => [...newElementsAfterUndoOperation]);
+    }
+  };
+
+  const handleRedoOperation = () => {
+    const lastElement = redoStack.pop();
+    if (lastElement) {
+     undoStack.push(lastElement);
+     const newElementsAfterRedoOperation = [...canvasElements, lastElement];
+     setCanvasElements(newElementsAfterRedoOperation);
+     setAppElements(() => [...newElementsAfterRedoOperation]);
+    }
+  };
+
 
   return (
     <div className="bg-white border-gray-100 border rounded-md relative h-fit flex items-center py-px px-px plus-cursor">
@@ -38,7 +76,9 @@ const Toolbar: React.FC = () => {
         <button
           onClick={() => setToolAndActiveElementId("select")}
           className={`hover:bg-gray-100 outline-none w-full rounded-md px-3 py-2 ${
-            selectedTool == "select" ? "bg-purple-200 hover:bg-purple-200" : "bg-transparent"
+            selectedTool == "select"
+              ? "bg-purple-200 hover:bg-purple-200"
+              : "bg-transparent"
           }`}
         >
           <LuMousePointer2 className="text-sm" />
@@ -46,7 +86,9 @@ const Toolbar: React.FC = () => {
         <button
           onClick={() => setToolAndActiveElementId("pencil")}
           className={`hover:bg-gray-100  outline-none rounded-md px-3 py-2 ${
-            selectedTool == "pencil" ? "bg-purple-200 hover:bg-purple-200" : "bg-transparent"
+            selectedTool == "pencil"
+              ? "bg-purple-200 hover:bg-purple-200"
+              : "bg-transparent"
           }`}
         >
           <IoPencilOutline className="text-sm" />
@@ -54,7 +96,9 @@ const Toolbar: React.FC = () => {
         <button
           onClick={() => setToolAndActiveElementId("eraser")}
           className={`hover:bg-gray-100 outline-none rounded-md px-3 py-2 ${
-            selectedTool == "eraser" ? "bg-purple-200 hover:bg-purple-200" : "bg-transparent"
+            selectedTool == "eraser"
+              ? "bg-purple-200 hover:bg-purple-200"
+              : "bg-transparent"
           }`}
         >
           <PiEraserFill className="text-sm" />
@@ -62,7 +106,9 @@ const Toolbar: React.FC = () => {
         <button
           onClick={() => setToolAndActiveElementId("text")}
           className={`hover:bg-gray-100 outline-none rounded-md px-3 py-2 ${
-            selectedTool == "text" ? "bg-purple-200 hover:bg-purple-200" : "bg-transparent"
+            selectedTool == "text"
+              ? "bg-purple-200 hover:bg-purple-200"
+              : "bg-transparent"
           }`}
         >
           <PiTextTBold className="text-sm" />
@@ -119,15 +165,31 @@ const Toolbar: React.FC = () => {
         </button>
 
         <button
-          onClick={() => setToolAndActiveElementId("redo")}
-          className="bg-transparent outline-none hover:bg-gray-100 rounded-md px-3 py-2"
+          onClick={() => {
+            // setToolAndActiveElementId("undo");
+            handleUndoOperation();
+          }
+          }
+          className={`hover:bg-gray-100 outline-none rounded-md px-3 py-2 ${
+            selectedTool == "undo"
+              ? "bg-purple-200 hover:bg-purple-200"
+              : "bg-transparent"
+          }`}
         >
           <IoCaretBackSharp className="text-base" />
         </button>
 
         <button
-          onClick={() => setToolAndActiveElementId("undo")}
-          className={`bg-transparent outline-none hover:bg-gray-100 rounded-sm px-3 py-2`}
+          onClick={() => {
+            // setToolAndActiveElementId("redo")
+            handleRedoOperation();
+          }
+          }
+          className={`hover:bg-gray-100 outline-none rounded-md px-3 py-2 ${
+            selectedTool == "redo"
+              ? "bg-purple-200 hover:bg-purple-200"
+              : "bg-transparent"
+          }`}
         >
           <IoCaretForwardSharp className="text-base" />
         </button>

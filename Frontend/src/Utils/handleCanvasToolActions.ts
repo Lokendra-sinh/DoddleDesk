@@ -1,39 +1,51 @@
 import React from "react";
-import { ElementsContainer } from "../Types/Types";
-import { activeInteractiveElement, canvasElements, globalCursorStyle, setGlobalCursorStyle, isElementMoving, isElementResizing } from "./interactionhelpers";
+import { ElementTypes, ElementsContainer } from "../Types/Types";
+import { globalCursorStyle, setGlobalCursorStyle, isElementMoving, isElementResizing } from "./interactionhelpers";
 import { renderSelectedShape } from "./Render/DynamicElements/renderSelectedShape";
 import { setCanvasAndRecoilState, handlMainCanvasMouseMovements } from "./Operations/handleMainCanvasMouseMovements";
 import { handleActiveOperation } from "./Operations/handleActiveOperation";
 import { handleEraserOperation } from "./Operations/Eraser/handleEraserOperation";
-import { startAnimationPreview } from "./Render/DynamicElements/handleSelectedShapeAnimation";
-
+import { handleTextOnMouseClick } from "./Tools/Text/handleTextOnMouseClick";
 
 
 export const handleCanvasToolActions = (
   mainCanvasRef: React.RefObject<HTMLCanvasElement>,
+  overlayCanvasRef: React.RefObject<HTMLCanvasElement>,
   selectedTool: string,
   setSelectedTool: React.Dispatch<React.SetStateAction<string>>,
-  setRecoilElements: React.Dispatch<React.SetStateAction<ElementsContainer>>,
-  recoilElements: ElementsContainer,
+  setAppElements: React.Dispatch<React.SetStateAction<ElementsContainer>>,
+  appElements: ElementsContainer,
+  activeCanvasElement: ElementTypes | null,
+  setActiveCanvasElement: React.Dispatch<React.SetStateAction<ElementTypes | null>>,
+  setIsSidePanelOpen: React.Dispatch<React.SetStateAction<boolean>>,
 ) => {
     if (!mainCanvasRef.current) return;
 
-  
+
+    const textToolMousedownCleanUp = (e: MouseEvent) => {
+      e.stopPropagation();
+      overlayCanvasRef.current!.style.cursor = "default";
+      const cleanup = handleTextOnMouseClick(e, overlayCanvasRef, appElements, setAppElements);
+
+      return () => {
+        cleanup;
+      }
+    }
+
   switch (selectedTool) {
     case "circle":
     case "ellipse":
     case "rectangle":
     case "biSquare":
     case "pencil":
-    case "text":
       setGlobalCursorStyle("crosshair");
       mainCanvasRef.current.style.cursor = globalCursorStyle;
       mainCanvasRef.current.addEventListener("mousedown", handleActiveToolMouseDown);
       break;
     case "select":
       setGlobalCursorStyle("default");
-      if(recoilElements.length !== 0){
-        setCanvasAndRecoilState(mainCanvasRef, recoilElements, setRecoilElements);
+      if(appElements.length !== 0){
+        setCanvasAndRecoilState(mainCanvasRef, appElements, setAppElements);
         mainCanvasRef.current.addEventListener("mousemove", onMouseMove);
         mainCanvasRef.current.addEventListener("mousedown", handleGeneralCanvasMouseDown);
       }
@@ -45,37 +57,49 @@ export const handleCanvasToolActions = (
       setGlobalCursorStyle("eraser");
       mainCanvasRef.current!.addEventListener("mousedown", handleEraserMouseDown);
       break;
+      case "text":
+        overlayCanvasRef.current!.style.display = "block";
+        overlayCanvasRef.current!.style.cursor = "text";
+        overlayCanvasRef.current!.width = mainCanvasRef.current.width;
+        overlayCanvasRef.current!.height = mainCanvasRef.current.height;
+        overlayCanvasRef.current!.addEventListener("mousedown", textToolMousedownCleanUp);
+        // mainCanvasRef.current!.addEventListener("mousedown", handleTextToolMouseDown);
+        break;
   }
 
   function handleActiveToolMouseDown(e: MouseEvent){
-    console.log("Mouse down when tool is: ", selectedTool);
+    
     renderSelectedShape(
       e,
       mainCanvasRef,
       selectedTool,
       setSelectedTool,
-      setRecoilElements
+      setAppElements,
+      setIsSidePanelOpen,
+      setActiveCanvasElement,
     );
   };
 
   function handleGeneralCanvasMouseDown(e: MouseEvent){
-    handleActiveOperation(e, mainCanvasRef, recoilElements, setRecoilElements);
+    handleActiveOperation(e, mainCanvasRef, appElements, setAppElements);
   }
 
   function handleEraserMouseDown(e: MouseEvent){
     if(globalCursorStyle !== "eraser") return;
     if (e.button !== 0) return; // to avoid right click
-    console.log("inside eraser mouse down becuase globalCursorStyle is eraser")
-    handleEraserOperation(e, mainCanvasRef, recoilElements, setRecoilElements, setSelectedTool);
+
+    handleEraserOperation(e, mainCanvasRef, appElements, setAppElements, setSelectedTool);
   };
 
  function onMouseMove(e: MouseEvent) {
-  console.log("value of isElementResizing: ", isElementResizing);
     if(isElementMoving || isElementResizing) return; // if element is currently moving, do not go inside this function to avoid flickering
-    console.log("inside mainCanvasMouse becuase you fucked up")
     handlMainCanvasMouseMovements(e);
   }
 
+
+function handleTextToolMouseDown(e: MouseEvent){
+  console.log("mousedown maincanvas coordinates: ", e.clientX, e.clientY);
+}
 
   return () => {
   
@@ -83,6 +107,8 @@ export const handleCanvasToolActions = (
       mainCanvasRef.current!.removeEventListener("mousedown", handleGeneralCanvasMouseDown);
       mainCanvasRef.current!.removeEventListener("mousemove", onMouseMove);
       mainCanvasRef.current!.removeEventListener("mousedown", handleEraserMouseDown);
-    
+      mainCanvasRef.current!.removeEventListener("mousedown", handleTextToolMouseDown);
+      overlayCanvasRef.current!.removeEventListener("mousedown", textToolMousedownCleanUp);
+      textToolMousedownCleanUp;
   };
 };

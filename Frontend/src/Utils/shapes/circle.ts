@@ -1,4 +1,3 @@
-import { activeForegroundElement } from "../../Components/Board/Board";
 import { ElementTypes } from "../../Types/Types";
 
 export function drawCircle(
@@ -19,8 +18,9 @@ export function drawCircle(
     ) / 2;
 
   ctx.beginPath();
-  ctx.strokeStyle = element!.color;
-  ctx.lineWidth = element!.lineWidth;
+  ctx.strokeStyle = element.strokeColor;
+  ctx.lineWidth = element.strokeWidth ? element.strokeWidth : 2;
+  ctx.fillStyle = element.fillColor ? element.fillColor : "transparent";
   ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
   ctx.stroke();
   ctx.closePath();
