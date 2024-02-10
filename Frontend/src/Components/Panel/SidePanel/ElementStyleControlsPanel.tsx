@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import { useRecoilState } from "recoil";
 import {
-  currentActiveElementOnCanvas,
   DoddleDeskElements,
 } from "../../../Recoil/Atoms/elements";
-import { ElementsContainer, ElementTypes } from "../../../Types/Types";
+import { ElementsContainer } from "../../../Types/Types";
 import { doddleDeskColors } from "../../../Utils/doddleDeskColors";
 import {
   activeInteractiveElement,
@@ -19,35 +18,31 @@ let left: number = 0;
 export const ElementStyleControlsPanel: React.FC = () => {
   const [strokeColor, setStrokeColor] = useState<string>("red");
   const [fillColor, setFillColor] = useState<string>("red");
-  const [strokeWidth, setStrokeWidth] = useState<number>(1);
   const [isStrokeColorMenuOpen, setIsStrokeColorMenuOpen] =
     useState<boolean>(false);
   const [isFillColorMenuOpen, setIsFillColorMenuOpen] =
     useState<boolean>(false);
   const [isStrokeWidthMenuOpen, setIsStrokeWidthMenuOpen] =
     useState<boolean>(false);
-  const [activeElement, setActiveElement] = useRecoilState<ElementTypes | null>(
-    currentActiveElementOnCanvas
-  );
+ 
  
   const [appElements, setAppElements] =
     useRecoilState<ElementsContainer>(DoddleDeskElements);
-  let activeElementIndex: number | null = null;
+
 
   const handleStrokeColorChange = (color: string) => {
     setStrokeColor(color);
     //only update the stroke color of the active element if there is an active element
-    if (activeElement) updateElementsAfterStrokeColorChange(color);
+    if (activeInteractiveElement) updateElementsAfterStrokeColorChange(color);
   };
 
   const updateElementsAfterStrokeColorChange = (color: string) => {
-    const updatedElements = canvasElements.map((element, index) => {
+    const updatedElements = appElements.map((element) => {
       const updatedElement = { ...element };
-      if (updatedElement.id == activeElement?.id) {
+      if (updatedElement.id == activeInteractiveElement?.id) {
         updatedElement.isStroked = true;
         updatedElement.strokeColor =
           doddleDeskColors[color as keyof typeof doddleDeskColors];
-        activeElementIndex = index;
         undoStack.push(updatedElement);
       }
       return updatedElement;
@@ -60,13 +55,13 @@ export const ElementStyleControlsPanel: React.FC = () => {
   const handleFillColorChange = (color: string) => {
     setFillColor(color);
     //only update the fill color of the active element if there is an active element
-    if (activeElement) updateElementsAfterFillColorChange(color);
+    if (activeInteractiveElement) updateElementsAfterFillColorChange(color);
   };
 
   const updateElementsAfterFillColorChange = (color: string) => {
     const updatedElements = canvasElements.map((element) => {
       const updatedElement = { ...element };
-      if (updatedElement.id == activeElement?.id) {
+      if (updatedElement.id == activeInteractiveElement?.id) {
         updatedElement.isFilled = true;
         updatedElement.fillColor =
           doddleDeskColors[color as keyof typeof doddleDeskColors];
@@ -80,15 +75,14 @@ export const ElementStyleControlsPanel: React.FC = () => {
   };
 
   const handleStrokeWidthChange = (width: number) => {
-    setStrokeWidth(width);
     //only update the stroke width of the active element if there is an active element
-    if (activeElement) updateElementsAfterStrokeWidthChange(width);
+    if (activeInteractiveElement) updateElementsAfterStrokeWidthChange(width);
   };
 
   const updateElementsAfterStrokeWidthChange = (width: number) => {
     const updatedElements = canvasElements.map((element) => {
       const updatedElement = { ...element };
-      if (updatedElement.id == activeElement?.id) {
+      if (updatedElement.id == activeInteractiveElement?.id) {
         updatedElement.strokeWidth = width;
         undoStack.push(updatedElement);
       }

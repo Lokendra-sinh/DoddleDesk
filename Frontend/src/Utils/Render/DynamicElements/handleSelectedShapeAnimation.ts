@@ -44,7 +44,7 @@ function animate() {
   });
   }
   if(eraserFadeTrailPoints.length !== 0){
-    drawEraserTrail(canvasRef, canvasContext);
+    drawEraserTrail(canvasContext);
   }
 
 }
@@ -73,7 +73,7 @@ function renderElement(element: ElementTypes) {
   }
 
   if (element.isActive) {
-    handleResizeHandlesAndBoundingBox(canvasContext, canvasRef, element);
+    handleResizeHandlesAndBoundingBox(canvasContext, element);
   }
 }
 

@@ -1,14 +1,13 @@
 import React from "react";
 import { ElementsContainer } from "../Types/Types";
 import { canvasElements, setCanvasElements } from "./interactionhelpers";
-import { over } from "lodash";
+
 
 let originalCanvasWidth = 0;
 let originalCanvasHeight = 0;
 
 export const handleResize = (
   mainCanvasRef: React.RefObject<HTMLCanvasElement>,
-  recoilElements: ElementsContainer,
   setRecoilElements: React.Dispatch<React.SetStateAction<ElementsContainer>>
 ) => {
   if (!mainCanvasRef.current) return;

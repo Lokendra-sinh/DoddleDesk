@@ -1,5 +1,5 @@
 import { ElementTypes } from "../../../../Types/Types";
-import { boundingBoxProperties, cueBallProperties, BALL_RADIUS } from "../../../interactionhelpers";
+import { boundingBoxProperties, cueBallProperties } from "../../../interactionhelpers";
 
 let startX = 0;
 let startY = 0;

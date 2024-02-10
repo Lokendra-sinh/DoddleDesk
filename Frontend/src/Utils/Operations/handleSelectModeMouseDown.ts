@@ -2,13 +2,11 @@ import {
   canvasElements,
   currentCursorStyle,
   setIsElementCurrentlyMoving,
-  isElementCurrentlyResizing,
   setIsElementCurrentlyResizing,
   setCanvasElements,
-  cueBallsAreVisible,
   setCueBallsAreVisible,
 } from "../interactionhelpers";
-import { ElementsContainer, ElementTypes } from "../../Types/Types";
+import { ElementsContainer } from "../../Types/Types";
 import { moveElement } from "./Move/moveElement";
 import React from "react";
 import { handleResizeOperation } from "./Resize/handleResizeOperation";

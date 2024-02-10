@@ -1,5 +1,5 @@
 import React from "react";
-import { ElementTypes, ElementsContainer } from "../Types/Types";
+import { ElementsContainer } from "../Types/Types";
 import { currentCursorStyle, setCurrentCursorStyle, isElementCurrentlyMoving, isElementCurrentlyResizing } from "./interactionhelpers";
 import { renderSelectedShape } from "./Render/DynamicElements/renderSelectedShape";
 import { handleSelectModeMouseMove } from "./Operations/handleSelectModeMouseMove";
@@ -13,8 +13,6 @@ export const handleCanvasToolActions = (
   setSelectedTool: React.Dispatch<React.SetStateAction<string>>,
   setAppElements: React.Dispatch<React.SetStateAction<ElementsContainer>>,
   appElements: ElementsContainer,
-  activeCanvasElement: ElementTypes | null,
-  setActiveCanvasElement: React.Dispatch<React.SetStateAction<ElementTypes | null>>,
   setIsSidePanelOpen: React.Dispatch<React.SetStateAction<boolean>>,
 ) => {
     if (!mainCanvasRef.current) return;
@@ -58,7 +56,6 @@ export const handleCanvasToolActions = (
       setSelectedTool,
       setAppElements,
       setIsSidePanelOpen,
-      setActiveCanvasElement,
     );
   };
 
@@ -70,13 +67,13 @@ export const handleCanvasToolActions = (
     if(currentCursorStyle !== "eraser") return;
     if (e.button !== 0) return; // to avoid right click
 
-    handleEraserOperation(e, mainCanvasRef, appElements, setAppElements, setSelectedTool);
+    handleEraserOperation(e, mainCanvasRef, setAppElements);
   };
 
  function onSelectModeMouseMove(e: MouseEvent) {
   
   if(isElementCurrentlyMoving || isElementCurrentlyResizing) return; // if element is currently moving, do not go inside this function to avoid flickering
-    handleSelectModeMouseMove(e, mainCanvasRef, appElements, setAppElements, setIsSidePanelOpen);
+    handleSelectModeMouseMove(e, mainCanvasRef);
   }
 
 

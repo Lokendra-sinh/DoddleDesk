@@ -1,5 +1,4 @@
-import { ElementsContainer, ElementTypes } from "../../../Types/Types";
-import { v4 as uuidv4 } from "uuid";
+import { ElementsContainer } from "../../../Types/Types";
 import { canvasElements, eraserFadeTrailPoints, setCanvasElements } from "../../interactionhelpers";
 import { startAnimationPreview, stopAnimationPreview } from "../../Render/DynamicElements/handleSelectedShapeAnimation";
 import { cloneDeep, throttle } from "lodash";
@@ -7,21 +6,14 @@ import { cloneDeep, throttle } from "lodash";
 let mouseDownX: number = 0;
 let mouseDownY: number = 0;
 let canvasRef: React.RefObject<HTMLCanvasElement>;
-let newRecoilElements: ElementsContainer;
-let setNewRecoilElements: React.Dispatch<React.SetStateAction<ElementsContainer>>;
-let stackingOrder: number = 1;
-let tempElement: ElementTypes | undefined;
 let isErasing: boolean = false;
-let elementIndex: number = -1;
 let isAnimationStarted: boolean = false;
 
 
 export function handleEraserOperation(
   e: MouseEvent,
   mainCanvasRef: React.RefObject<HTMLCanvasElement>,
-  recoilElements: ElementsContainer,
   setRecoilElements: React.Dispatch<React.SetStateAction<ElementsContainer>>,
-  setSelectedTool: React.Dispatch<React.SetStateAction<string>>,
 ) {
   e.stopPropagation();
   e.preventDefault();
@@ -88,7 +80,7 @@ function checkForElementsToBeErased(mainCanvasX: number, mainCanvasY: number) {
  
     const elementsToBeErased = cloneDeep(canvasElements);
 
-    elementsToBeErased.forEach((element, index) => {
+    elementsToBeErased.forEach((element) => {
         if(
             mainCanvasX >= element.startCoordinates!.x &&
             mainCanvasX <= element.endCoordinates!.x &&

@@ -1,4 +1,4 @@
-import { ElementTypes, ElementsContainer } from "../../../Types/Types";
+import { ElementsContainer } from "../../../Types/Types";
 import { drawCircle } from "../../shapes/circle";
 import { drawEllipse } from "../../shapes/ellipse";
 import { drawRectangle } from "../../shapes/rectangle";
@@ -13,8 +13,6 @@ import { setActiveInteractiveElement, setCueBallsAreVisible } from "../../intera
 export function drawStaticElements(
     mainCanvasRef: React.RefObject<HTMLCanvasElement>,
     doddleDeskElements: ElementsContainer,
-    activeCanvasElement: ElementTypes | null,
-    setActiveCanvasElement: React.Dispatch<React.SetStateAction<ElementTypes | null>>,
     setIsSidePanelOpen: React.Dispatch<React.SetStateAction<boolean>>,
 ){
     if(!mainCanvasRef) return;
@@ -53,9 +51,8 @@ export function drawStaticElements(
     })
 
     if(activeElementIndex !== -1){
-        handleResizeHandlesAndBoundingBox(mainCanvasContext, mainCanvasRef, doddleDeskElements[activeElementIndex]);
+        handleResizeHandlesAndBoundingBox(mainCanvasContext, doddleDeskElements[activeElementIndex]);
         setActiveInteractiveElement(doddleDeskElements[activeElementIndex]);
-        setActiveCanvasElement(doddleDeskElements[activeElementIndex]);
         setCueBallsAreVisible(true);
         setIsSidePanelOpen(true);
     }

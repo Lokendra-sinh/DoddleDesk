@@ -8,7 +8,6 @@ export function drawEraserTrail(canvasContext: CanvasRenderingContext2D, element
     if (!canvasContext || !element.points || element.points.length < 2) return;
 
     // Define the step size for interpolation (smaller values = smoother)
-    const stepSize = 0.05; // Adjust based on desired smoothness
 
     canvasContext.beginPath();
     canvasContext.moveTo(element.points[0].x, element.points[0].y);

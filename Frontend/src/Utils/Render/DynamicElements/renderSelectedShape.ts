@@ -25,7 +25,7 @@ let maxPencilCoordinates: { x: number; y: number } | undefined  = { x: 0, y: 0 }
 let setSelectedTool: React.Dispatch<React.SetStateAction<string>>;
 let setAppElements: React.Dispatch<React.SetStateAction<ElementsContainer>>;
 let setSidePanelVisibility: React.Dispatch<React.SetStateAction<boolean>>;
-let setActiveElement: React.Dispatch<React.SetStateAction<ElementTypes | null>>;
+
 
 function calculateDistance(x1: number, y1: number, x2: number, y2: number) {
   return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
@@ -80,7 +80,6 @@ export function renderSelectedShape(
   toolSetterFunction: React.Dispatch<React.SetStateAction<string>>,
   recoilElementsSetter: React.Dispatch<React.SetStateAction<ElementsContainer>>,
   setIsSidePanelOpen: React.Dispatch<React.SetStateAction<boolean>>,
-  setActiveCanvasElement: React.Dispatch<React.SetStateAction<ElementTypes | null>>,
 ) {
   e.stopPropagation();
   if (!mainCanvasRef.current) return;
@@ -89,7 +88,6 @@ export function renderSelectedShape(
   setSelectedTool = toolSetterFunction;
   setAppElements = recoilElementsSetter;
   setSidePanelVisibility = setIsSidePanelOpen;
-  setActiveElement = setActiveCanvasElement;
   currentCanvasRef = mainCanvasRef;
   currentCanvasContext = mainCanvasRef.current.getContext("2d")!;
 
