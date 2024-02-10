@@ -15,7 +15,7 @@ const Navbar: React.FC<NavbarProps> = ({isSidePanelOpen, setIsSidePanelOpen}) =>
 
         <Toolbar isSidePanelOpen={isSidePanelOpen} setIsSidePanelOpen={setIsSidePanelOpen} />
 
-        <button className="w-content px-2 py-1 bg-purple-300 rounded">
+        <button className="w-content px-2 py-1 bg-theme-peach rounded">
             <p className="text-sm font-medium">sign in/up</p>
         </button>
     </div>

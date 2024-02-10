@@ -5,13 +5,14 @@ import { drawRectangle } from "../../shapes/rectangle";
 import { drawBiSquare } from "../../shapes/biSquare";
 import { drawPencil } from "../../shapes/pencil";
 import { handleResizeHandlesAndBoundingBox } from "../DynamicElements/ResizeHandlers/handleResizeHandlesAndBoundingBox";
-import { act } from "react-dom/test-utils";
+import { setActiveInteractiveElement, setCueBallsAreVisible } from "../../interactionhelpers";
+
 
 
 
 export function drawStaticElements(
     mainCanvasRef: React.RefObject<HTMLCanvasElement>,
-    appElements: ElementsContainer,
+    doddleDeskElements: ElementsContainer,
     activeCanvasElement: ElementTypes | null,
     setActiveCanvasElement: React.Dispatch<React.SetStateAction<ElementTypes | null>>,
     setIsSidePanelOpen: React.Dispatch<React.SetStateAction<boolean>>,
@@ -21,10 +22,9 @@ export function drawStaticElements(
     if(!mainCanvasContext) return;
     mainCanvasContext.clearRect(0, 0, mainCanvasContext.canvas.width, mainCanvasContext.canvas.height);
     let activeElementIndex = -1;
-    console.log("inside draw static elements")
-   
+
   
-    appElements.forEach((element, index) => {
+    doddleDeskElements.forEach((element, index) => {
         if(element.type === "text") return;
 
         switch(element.type) {
@@ -53,8 +53,10 @@ export function drawStaticElements(
     })
 
     if(activeElementIndex !== -1){
-        handleResizeHandlesAndBoundingBox(mainCanvasContext, mainCanvasRef, appElements[activeElementIndex]);
-        setActiveCanvasElement(appElements[activeElementIndex]);
+        handleResizeHandlesAndBoundingBox(mainCanvasContext, mainCanvasRef, doddleDeskElements[activeElementIndex]);
+        setActiveInteractiveElement(doddleDeskElements[activeElementIndex]);
+        setActiveCanvasElement(doddleDeskElements[activeElementIndex]);
+        setCueBallsAreVisible(true);
         setIsSidePanelOpen(true);
     }
 }

@@ -179,13 +179,13 @@ function onMouseUp(e: MouseEvent) {
   allowDrawing = false;
   distanceChecked = false;
   elementIndex = -1;
-  setActiveElement(tempElement);
-  setAppElements(() => [...canvasElements]);
   if(currentTool === "pencil"){
     setSelectedTool("pencil");
   } else {
   setSelectedTool("select");
   }
+  localStorage.setItem("canvasElements", JSON.stringify(canvasElements));
+  setAppElements(() => [...canvasElements]);
 }
 
 

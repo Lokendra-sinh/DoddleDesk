@@ -164,5 +164,8 @@ export const doddleDeskColors = {
     "bg-rose-300": "#fcd7d7",
     "bg-rose-200": "#fef2f2",
     "bg-rose-100": "#fff7f7",
+    "bg-theme-1": "#FCCBB8",
+    
+
 
 }

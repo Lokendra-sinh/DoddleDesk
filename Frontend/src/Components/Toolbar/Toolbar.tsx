@@ -22,6 +22,7 @@ import {
   redoStack,
 } from "../../Utils/interactionhelpers";
 
+
 interface ToolbarProps {
   isSidePanelOpen: boolean;
   setIsSidePanelOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -44,30 +45,67 @@ const Toolbar: React.FC<ToolbarProps> = ({
     setSelectedTool(tool);
     setCueBallsAreVisible(false);
     setIsShapesMenuOpen(false);
-    setIsSidePanelOpen(true);
+    setIsSidePanelOpen(false);
     setAppElements([...canvasElements]);
   };
 
 
-  const handleUndoOperation = () => {
-    const lastElement = undoStack.pop();
-    if (lastElement) {
-     redoStack.push(lastElement);
-     const newElementsAfterUndoOperation = canvasElements.filter(Element => Element.id !== lastElement.id);
-     setCanvasElements(newElementsAfterUndoOperation);
-     setAppElements(() => [...newElementsAfterUndoOperation]);
-    }
-  };
+    const handleUndoOperation = () => {
+      if(undoStack.length === 0) return;
+      
+      const poppedElement = undoStack.pop();
+      if (poppedElement) {
+      redoStack.push(poppedElement);
+      
+      //after pushing the popped element to redoStack, if the undoStack length is 0, then the top element in the undoStack is the last element in the canvasElements
+        if(undoStack.length === 0){
+            setCanvasElements([]);
+            setIsSidePanelOpen(false);
+            setAppElements([]);
+            return;
+        }
 
-  const handleRedoOperation = () => {
-    const lastElement = redoStack.pop();
-    if (lastElement) {
-     undoStack.push(lastElement);
-     const newElementsAfterRedoOperation = [...canvasElements, lastElement];
-     setCanvasElements(newElementsAfterRedoOperation);
-     setAppElements(() => [...newElementsAfterRedoOperation]);
-    }
-  };
+        //if the top element in the undoStack is deleted, then remove the element from the canvasElements otherwise update the element in the canvasElements
+      const topElement = undoStack[undoStack.length - 1];
+      const topElementIndexInCanvasElements = canvasElements.findIndex(Element => Element.id === poppedElement.id);
+
+      if(topElement.isDeleted){
+          const updatedElementsAfterUndoOperation = canvasElements.filter(Element => Element.id !== poppedElement.id);
+          setCanvasElements(updatedElementsAfterUndoOperation);
+      } else {
+          canvasElements[topElementIndexInCanvasElements] = { ...poppedElement};
+          setCanvasElements([...canvasElements]);
+      }
+
+      setAppElements(() => [...canvasElements]);
+      }
+    };
+
+    const handleRedoOperation = () => {
+      if (redoStack.length === 0) return;
+    
+      const lastElement = redoStack.pop();
+      if (lastElement) {
+        undoStack.push(lastElement);
+    
+        // Determine if lastElement is being re-added or if it was modified
+        const elementIndex = canvasElements.findIndex(element => element.id === lastElement.id);
+    
+        let newElementsAfterRedoOperation;
+        if (elementIndex !== -1) {
+          // Element exists, so it was modified and we need to update it
+          newElementsAfterRedoOperation = canvasElements.map((element, index) => 
+            index === elementIndex ? lastElement : element
+          );
+        } else {
+          // Element does not exist, so it was added
+          newElementsAfterRedoOperation = [...canvasElements, lastElement];
+        }
+    
+        setCanvasElements(newElementsAfterRedoOperation);
+        setAppElements([...newElementsAfterRedoOperation]);
+      }
+    };
 
 
   return (
@@ -77,7 +115,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
           onClick={() => setToolAndActiveElementId("select")}
           className={`hover:bg-gray-100 outline-none w-full rounded-md px-3 py-2 ${
             selectedTool == "select"
-              ? "bg-purple-200 hover:bg-purple-200"
+              ? "bg-theme-peach hover:bg-theme-light-peach"
               : "bg-transparent"
           }`}
         >
@@ -87,7 +125,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
           onClick={() => setToolAndActiveElementId("pencil")}
           className={`hover:bg-gray-100  outline-none rounded-md px-3 py-2 ${
             selectedTool == "pencil"
-              ? "bg-purple-200 hover:bg-purple-200"
+              ? "bg-theme-peach hover:bg-theme-light-peach"
               : "bg-transparent"
           }`}
         >
@@ -97,7 +135,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
           onClick={() => setToolAndActiveElementId("eraser")}
           className={`hover:bg-gray-100 outline-none rounded-md px-3 py-2 ${
             selectedTool == "eraser"
-              ? "bg-purple-200 hover:bg-purple-200"
+              ? "bg-theme-peach hover:bg-theme-light-peach"
               : "bg-transparent"
           }`}
         >
@@ -107,7 +145,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
           onClick={() => setToolAndActiveElementId("text")}
           className={`hover:bg-gray-100 outline-none rounded-md px-3 py-2 ${
             selectedTool == "text"
-              ? "bg-purple-200 hover:bg-purple-200"
+              ? "bg-theme-peach hover:bg-theme-light-peach"
               : "bg-transparent"
           }`}
         >
@@ -121,7 +159,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
             selectedTool == "ellipse" ||
             selectedTool == "rectangle" ||
             selectedTool == "biSquare"
-              ? "bg-purple-200 hover:bg-purple-200"
+              ? "bg-theme-peach hover:bg-theme-light-peach"
               : "bg-transparent"
           }`}
         >
@@ -172,7 +210,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
           }
           className={`hover:bg-gray-100 outline-none rounded-md px-3 py-2 ${
             selectedTool == "undo"
-              ? "bg-purple-200 hover:bg-purple-200"
+              ? "bg-theme-peach hover:bg-theme-light-peach"
               : "bg-transparent"
           }`}
         >
@@ -187,7 +225,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
           }
           className={`hover:bg-gray-100 outline-none rounded-md px-3 py-2 ${
             selectedTool == "redo"
-              ? "bg-purple-200 hover:bg-purple-200"
+              ? "bg-theme-peach hover:bg-theme-light-peach"
               : "bg-transparent"
           }`}
         >

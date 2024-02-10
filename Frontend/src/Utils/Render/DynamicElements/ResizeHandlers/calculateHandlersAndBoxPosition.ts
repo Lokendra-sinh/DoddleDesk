@@ -1,5 +1,5 @@
 import { ElementTypes } from "../../../../Types/Types";
-import { boundingBoxProperties, cueBallProperties, MARGIN_GAP, CIRCLE_MARGIN_GAP, BALL_RADIUS } from "../../../interactionhelpers";
+import { boundingBoxProperties, cueBallProperties, BALL_RADIUS } from "../../../interactionhelpers";
 
 let startX = 0;
 let startY = 0;
@@ -42,69 +42,68 @@ function calculateCirclesBoundingBoxPosition() {
       ) / 2;
   
     // Calculate the top-left corner of the bounding box considering the gap
-    startX = centerX - radius - CIRCLE_MARGIN_GAP;
-    startY = centerY - radius - CIRCLE_MARGIN_GAP;
+    startX = centerX - radius;
+    startY = centerY - radius;
 
     // Calculate the bottom-right corner of the bounding box considering the gap
-     endX = centerX + radius + CIRCLE_MARGIN_GAP;
-     endY = centerY + radius + CIRCLE_MARGIN_GAP;
+     endX = centerX + radius;
+     endY = centerY + radius;
   
     // Adjust the width and height to include the gap
-     width = radius * 2 + 2 * CIRCLE_MARGIN_GAP;
-     height = radius * 2 + 2 * CIRCLE_MARGIN_GAP;
+     width = radius * 2;
+     height = radius * 2;
 }
 
 function updateBoundingBoxPosition() {
-    boundingBoxProperties.startX = startX - MARGIN_GAP;
-    boundingBoxProperties.startY = startY - MARGIN_GAP;
-    boundingBoxProperties.endX = endX + MARGIN_GAP;
-    boundingBoxProperties.endY = endY + MARGIN_GAP;
-    boundingBoxProperties.width = endX - startX + MARGIN_GAP * 2;
-    boundingBoxProperties.height = endY - startY + MARGIN_GAP * 2;
+    boundingBoxProperties.startX = startX;
+    boundingBoxProperties.startY = startY;
+    boundingBoxProperties.endX = endX;
+    boundingBoxProperties.endY = endY;
+    boundingBoxProperties.width = endX - startX;
+    boundingBoxProperties.height = endY - startY;
 
-    console.log("boundingBoxProperties before inversion: ", boundingBoxProperties);
 }
 
 function updateCueBallsPosition(element: ElementTypes){
 
     // Top Left
-    cueBallProperties.topLeft.x = boundingBoxProperties.startX - BALL_RADIUS;
-    cueBallProperties.topLeft.y = boundingBoxProperties.startY - BALL_RADIUS;
+    cueBallProperties.topLeft.x = boundingBoxProperties.startX;
+    cueBallProperties.topLeft.y = boundingBoxProperties.startY;
 
      // Top Right
-     cueBallProperties.topRight.x = boundingBoxProperties.endX - BALL_RADIUS;
-     cueBallProperties.topRight.y = boundingBoxProperties.startY - BALL_RADIUS;
+     cueBallProperties.topRight.x = boundingBoxProperties.endX;
+     cueBallProperties.topRight.y = boundingBoxProperties.startY;
  
  
  
      // Bottom Left
-     cueBallProperties.bottomLeft.x = boundingBoxProperties.startX - BALL_RADIUS;
-     cueBallProperties.bottomLeft.y = boundingBoxProperties.endY - BALL_RADIUS;
+     cueBallProperties.bottomLeft.x = boundingBoxProperties.startX;
+     cueBallProperties.bottomLeft.y = boundingBoxProperties.endY;
  
     
      // Bottom Right
-     cueBallProperties.bottomRight.x = boundingBoxProperties.endX - BALL_RADIUS;
-     cueBallProperties.bottomRight.y = boundingBoxProperties.endY - BALL_RADIUS;
+     cueBallProperties.bottomRight.x = boundingBoxProperties.endX;
+     cueBallProperties.bottomRight.y = boundingBoxProperties.endY;
 
     
     if(element.type !== "text"){
 
     // Top Middle
-    cueBallProperties.topMiddle.x = boundingBoxProperties.startX + boundingBoxProperties.width / 2 - BALL_RADIUS;
-    cueBallProperties.topMiddle.y = boundingBoxProperties.startY - BALL_RADIUS;
+    cueBallProperties.topMiddle.x = boundingBoxProperties.startX + boundingBoxProperties.width / 2;
+    cueBallProperties.topMiddle.y = boundingBoxProperties.startY;
 
      // Left Middle
-     cueBallProperties.leftMiddle.x = boundingBoxProperties.startX - BALL_RADIUS;
-     cueBallProperties.leftMiddle.y = boundingBoxProperties.startY + boundingBoxProperties.height / 2 - BALL_RADIUS;
+     cueBallProperties.leftMiddle.x = boundingBoxProperties.startX;
+     cueBallProperties.leftMiddle.y = boundingBoxProperties.startY + boundingBoxProperties.height / 2;
     
       // Right Middle
-    cueBallProperties.rightMiddle.x = boundingBoxProperties.endX - BALL_RADIUS;
-    cueBallProperties.rightMiddle.y = boundingBoxProperties.startY + boundingBoxProperties.height / 2 - BALL_RADIUS;
+    cueBallProperties.rightMiddle.x = boundingBoxProperties.endX;
+    cueBallProperties.rightMiddle.y = boundingBoxProperties.startY + boundingBoxProperties.height / 2;
 
 
      // Bottom Middle
-     cueBallProperties.bottomMiddle.x = boundingBoxProperties.startX + boundingBoxProperties.width / 2 - BALL_RADIUS;
-     cueBallProperties.bottomMiddle.y = boundingBoxProperties.endY - BALL_RADIUS;
+     cueBallProperties.bottomMiddle.x = boundingBoxProperties.startX + boundingBoxProperties.width / 2;
+     cueBallProperties.bottomMiddle.y = boundingBoxProperties.endY;
 
     }
 

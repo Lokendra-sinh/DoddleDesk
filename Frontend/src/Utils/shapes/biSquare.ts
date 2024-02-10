@@ -23,7 +23,7 @@ export function drawBiSquare(
 
     ctx.beginPath();
     ctx.strokeStyle = element.strokeColor;
-  ctx.lineWidth = element.strokeWidth ? element.strokeWidth : 2;
+  ctx.lineWidth = element.strokeWidth ? element.strokeWidth : 1;
   ctx.fillStyle = element.fillColor ? element.fillColor : "transparent";
     //top-left corner
     ctx.moveTo(startX + effectiveCornerRadius, startY);
@@ -68,6 +68,7 @@ export function drawBiSquare(
       effectiveCornerRadius
     );
   
-    ctx.closePath();
+    ctx.fill()
     ctx.stroke();
+    ctx.closePath();
   }

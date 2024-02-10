@@ -12,9 +12,15 @@ export function drawRectangle(
     const { startCoordinates, endCoordinates } = element!;
     if (!startCoordinates || !endCoordinates) return;
     ctx.strokeStyle = element.strokeColor;
-    ctx.lineWidth = element.strokeWidth ? element.strokeWidth : 2;
+    ctx.lineWidth = element.strokeWidth ? element.strokeWidth : 1;
     ctx.fillStyle = element.fillColor ? element.fillColor : "transparent";
     ctx.strokeRect(
+      startCoordinates.x,
+      startCoordinates.y,
+      endCoordinates.x - startCoordinates.x,
+      endCoordinates.y - startCoordinates.y
+    );
+    ctx.fillRect(
       startCoordinates.x,
       startCoordinates.y,
       endCoordinates.x - startCoordinates.x,

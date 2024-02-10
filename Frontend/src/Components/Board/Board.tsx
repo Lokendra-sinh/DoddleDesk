@@ -20,6 +20,8 @@ import {
 import {
   canvasElements,
   blinkingCursorIntervalId,
+  undoStack,
+  setCanvasElements,
 } from "../../Utils/interactionhelpers";
 
 const Board: React.FC = () => {
@@ -30,15 +32,13 @@ const Board: React.FC = () => {
   const [activeCanvasElement, setActiveCanvasElement] =
     useRecoilState<ElementTypes | null>(currentActiveElementOnCanvas);
   const mainCanvasRef = useRef<HTMLCanvasElement | null>(null);
-  const overlayCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
     if (!mainCanvasRef.current) return;
-    console.log("board rendered");
     const ctx = mainCanvasRef.current.getContext("2d");
     if (!ctx) return;
     setAnimationContext(ctx, mainCanvasRef, setAppElements);
-
+   
     drawStaticElements(
       mainCanvasRef,
       appElements,
@@ -49,7 +49,6 @@ const Board: React.FC = () => {
 
     const cleanup = handleCanvasToolActions(
       mainCanvasRef,
-      overlayCanvasRef,
       selectedTool,
       setSelectedTool,
       setAppElements,
@@ -59,16 +58,29 @@ const Board: React.FC = () => {
       setIsSidePanelOpen
     );
 
+
     return () => {
       cleanup ? cleanup() : null;
       clearInterval(blinkingCursorIntervalId);
     };
   }, [selectedTool, appElements]);
 
-  useEffect(() => {
-    console.log("componet did mount");
 
-    initiateCanvas(mainCanvasRef, overlayCanvasRef);
+
+  useEffect(() => {
+   
+    initiateCanvas(mainCanvasRef);
+
+    try {
+      const storedElements = localStorage.getItem("canvasElements");
+      if (storedElements) {
+        const elementsFromLocalStorage = JSON.parse(storedElements);
+        setCanvasElements(elementsFromLocalStorage);
+        setAppElements(elementsFromLocalStorage);
+      }
+    } catch (error) {
+      console.error("Failed to parse canvas elements from localStorage:", error);
+    }
 
     const resizeClosure = () => {
       handleResize(mainCanvasRef, appElements, setAppElements);
@@ -104,12 +116,6 @@ const Board: React.FC = () => {
         <canvas
           ref={mainCanvasRef}
           id="main-canvas"
-          className="absolute top-0 left-0 z-5"
-        ></canvas>
-
-        <canvas
-          ref={overlayCanvasRef}
-          id="overlay-canvas"
           className="absolute top-0 left-0 z-5"
         ></canvas>
       </div>

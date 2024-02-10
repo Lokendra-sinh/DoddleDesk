@@ -38,19 +38,19 @@ export function setCursorPosition(x: number, y: number) {
   cursorPosition.x = x;
   cursorPosition.y = y;
 }
-export let globalCursorStyle: string = "default";
-export function setGlobalCursorStyle(cursorStyle: string) {
-  globalCursorStyle = cursorStyle;
+export let currentCursorStyle: string = "default";
+export function setCurrentCursorStyle(cursorStyle: string) {
+  currentCursorStyle = cursorStyle;
 }
 
-export let isElementMoving : boolean = false;
-export function setIsElementMoving(value: boolean){
-  isElementMoving = value;
+export let isElementCurrentlyMoving : boolean = false;
+export function setIsElementCurrentlyMoving(value: boolean){
+  isElementCurrentlyMoving = value;
 }
 
-export let isElementResizing: boolean = false;
-export function setIsElementResizing(value: boolean){
-  isElementResizing = value;
+export let isElementCurrentlyResizing: boolean = false;
+export function setIsElementCurrentlyResizing(value: boolean){
+  isElementCurrentlyResizing = value;
 }
 
 export const trailPointLifeSpan = 100;
@@ -69,8 +69,8 @@ export const setBlinkingCursorIntervalId = (id: number | undefined) => {
 export const MARGIN_GAP = 8;
 export const CIRCLE_MARGIN_GAP = 1;
 export const BALL_RADIUS = 4;
-export const BOUNDING_BOX_COLOR = "#0891b2";
-export const CUE_BALL_COLOR = "#06b6d4";
+export const BOUNDING_BOX_COLOR = "#9333ea";
+export const CUE_BALL_COLOR = "#6b21a8";
 export let areListenersAttached = false;
 export let cueBallsAreVisible = false;
 export const setCueBallsAreVisible = (value: boolean) => {

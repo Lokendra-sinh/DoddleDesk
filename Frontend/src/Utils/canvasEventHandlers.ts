@@ -63,13 +63,10 @@ export const handleResize = (
 
 export function initiateCanvas(
   mainCanvasRef: React.RefObject<HTMLCanvasElement>,
-  tempCanvasRef: React.RefObject<HTMLCanvasElement>,
 ) {
-  if (!mainCanvasRef.current || !tempCanvasRef.current) return;
+  if (!mainCanvasRef.current) return;
   const mainCanvasContext = mainCanvasRef.current.getContext("2d");
-  const tempCanvasContext = tempCanvasRef.current.getContext("2d");
-  if (!mainCanvasContext || !tempCanvasContext) return;
-  tempCanvasRef.current.style.display = "none";
+  if (!mainCanvasContext) return;
   
   const dpi = window.devicePixelRatio || 1;
   const width = document.documentElement.clientWidth * dpi;
