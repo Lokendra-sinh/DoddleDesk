@@ -30,9 +30,11 @@ export interface ElementTypes {
     startCoordinates?: Position;
     endCoordinates?: Position;
     points?: Position[];
-    color: string;
-    lineWidth: number;
-    text?: string;
+    strokeColor: string;
+    fillColor: string;
+    opacity?: number;
+    strokeWidth?: number;
+    textContent?: string;
     fontSize?: number;
     fontFamily?: string;
     isFilled?: boolean;
@@ -48,6 +50,7 @@ export interface ElementTypes {
     isActive: boolean;
     zIndex: number;
 }
+
 
 export type ElementsContainer = ElementTypes[];
 

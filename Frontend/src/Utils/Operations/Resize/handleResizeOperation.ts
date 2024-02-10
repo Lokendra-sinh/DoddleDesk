@@ -1,9 +1,10 @@
 import {
-  globalCursorStyle,
+  currentCursorStyle,
   activeInteractiveElement,
   canvasElements,
   overlayForDrag,
-  setIsElementResizing,
+  setIsElementCurrentlyResizing,
+  undoStack,
 } from "../../interactionhelpers";
 import { ElementsContainer, ElementTypes } from "../../../Types/Types";
 import {
@@ -21,12 +22,14 @@ let setNewRecoilElements: React.Dispatch<
   React.SetStateAction<ElementsContainer>
 >;
 let canvasRef: React.RefObject<HTMLCanvasElement>;
+let sidePanelOpen: React.Dispatch<React.SetStateAction<boolean>>;
 
 export function handleResizeOperation(
   x: number,
   y: number,
   mainCanvasRef: React.RefObject<HTMLCanvasElement>,
-  setRecoilElements: React.Dispatch<React.SetStateAction<ElementsContainer>>
+  setRecoilElements: React.Dispatch<React.SetStateAction<ElementsContainer>>,
+  setIsSidePanelOpen: React.Dispatch<React.SetStateAction<boolean>>,
 ) {
   if (!mainCanvasRef.current || !activeInteractiveElement) return;
   activeElementIndex = canvasElements.findIndex(
@@ -36,21 +39,18 @@ export function handleResizeOperation(
   mouseDownX = x;
   mouseDownY = y;
   setNewRecoilElements = setRecoilElements;
+  sidePanelOpen = setIsSidePanelOpen;
   canvasRef = mainCanvasRef;
-  console.log(
-    "canvasElements before resize: ",
-    canvasElements[activeElementIndex]
-  );
   calculateInitialOffset();
   startAnimationPreview();
-  console.log("animation started");
+  sidePanelOpen(false);
   overlayForDrag.style.display = "block";
-  overlayForDrag.style.cursor = globalCursorStyle;
+  overlayForDrag.style.cursor = currentCursorStyle;
   overlayForDrag.addEventListener("mousemove", handleMouseMove);
   overlayForDrag.addEventListener("mouseup", handleMouseUp);
 
   function handleMouseUp(e: MouseEvent) {
-    console.log("resize finished inside mouseup");
+   
     e.stopPropagation();
     stopAnimationPreview();
     overlayForDrag.style.display = "none";
@@ -61,19 +61,20 @@ export function handleResizeOperation(
         canvasElements[activeElementIndex]
       );
       canvasElements[activeElementIndex] = invertedElement;
-    console.log("final updated pencil element: ", canvasElements[activeElementIndex]);
+      undoStack.push(invertedElement);
     mouseDownX = 0;
     mouseDownY = 0;
     offSetX = 0;
     offSetY = 0;
     activeElementIndex = -1;
-    setIsElementResizing(false);
+    setIsElementCurrentlyResizing(false);
+    sidePanelOpen(true);
+    localStorage.setItem("canvasElements", JSON.stringify(canvasElements));
     setNewRecoilElements([...canvasElements]);
   }
 }
 
 function handleMouseMove(e: MouseEvent) {
-  console.log("currently resizing: ", globalCursorStyle);
   e.stopPropagation();
   if (!canvasRef.current || !activeInteractiveElement) return;
   const mainCanvasRect = canvasRef.current.getBoundingClientRect();
@@ -82,7 +83,7 @@ function handleMouseMove(e: MouseEvent) {
 
   const activeElement = cloneDeep(canvasElements[activeElementIndex]);
 
-  switch (globalCursorStyle) {
+  switch (currentCursorStyle) {
     case "nw-resize":
       activeElement.startCoordinates!.x = mouseX - offSetX;
       activeElement.startCoordinates!.y = mouseY - offSetY;
@@ -112,9 +113,6 @@ function handleMouseMove(e: MouseEvent) {
       activeElement.endCoordinates!.y = mouseY - offSetY;
       break;
   }
-
-  console.log("pencil start end coordinates: ", activeElement.startCoordinates, activeElement.endCoordinates);
-
   if (activeElement.type === "pencil") {
     updatePencilPoints(activeElement);
   } else {
@@ -180,7 +178,7 @@ function calculateInitialOffset() {
   const { x: startX, y: startY } = activeElement.startCoordinates!;
   const { x: endX, y: endY } = activeElement.endCoordinates!;
 
-  switch (globalCursorStyle) {
+  switch (currentCursorStyle) {
     case "nw-resize":
       offSetX = mouseDownX - startX;
       offSetY = mouseDownY - startY;
@@ -216,52 +214,52 @@ function calculateInitialOffset() {
   }
 }
 
-function updateElementForInitialOffset() {
-  const activeElement = cloneDeep(canvasElements[activeElementIndex]);
-  const { x: startX, y: startY } = activeElement.startCoordinates!;
-  const { x: endX, y: endY } = activeElement.endCoordinates!;
+// function updateElementForInitialOffset() {
+//   const activeElement = cloneDeep(canvasElements[activeElementIndex]);
+//   const { x: startX, y: startY } = activeElement.startCoordinates!;
+//   const { x: endX, y: endY } = activeElement.endCoordinates!;
 
-  switch (globalCursorStyle) {
-    case "nw-resize":
-      activeElement.startCoordinates!.x = startX + offSetX;
-      activeElement.startCoordinates!.y = startY + offSetY;
-      break;
-    case "n-resize":
-      activeElement.startCoordinates!.y = startY + offSetY;
-      break;
-    case "ne-resize":
-      activeElement.endCoordinates!.x = endX + offSetX;
-      activeElement.startCoordinates!.y = startY + offSetY;
-      break;
-    case "w-resize":
-      activeElement.startCoordinates!.x = startX + offSetX;
-      break;
-    case "e-resize":
-      activeElement.endCoordinates!.x = endX + offSetX;
-      break;
-    case "sw-resize":
-      activeElement.startCoordinates!.x = startX + offSetX;
-      activeElement.endCoordinates!.y = endY + offSetY;
-      break;
-    case "s-resize":
-      activeElement.endCoordinates!.y = endY + offSetY;
-      break;
-    case "se-resize":
-      activeElement.endCoordinates!.x = endX + offSetX;
-      activeElement.endCoordinates!.y = endY + offSetY;
-      break;
-  }
+//   switch (currentCursorStyle) {
+//     case "nw-resize":
+//       activeElement.startCoordinates!.x = startX + offSetX;
+//       activeElement.startCoordinates!.y = startY + offSetY;
+//       break;
+//     case "n-resize":
+//       activeElement.startCoordinates!.y = startY + offSetY;
+//       break;
+//     case "ne-resize":
+//       activeElement.endCoordinates!.x = endX + offSetX;
+//       activeElement.startCoordinates!.y = startY + offSetY;
+//       break;
+//     case "w-resize":
+//       activeElement.startCoordinates!.x = startX + offSetX;
+//       break;
+//     case "e-resize":
+//       activeElement.endCoordinates!.x = endX + offSetX;
+//       break;
+//     case "sw-resize":
+//       activeElement.startCoordinates!.x = startX + offSetX;
+//       activeElement.endCoordinates!.y = endY + offSetY;
+//       break;
+//     case "s-resize":
+//       activeElement.endCoordinates!.y = endY + offSetY;
+//       break;
+//     case "se-resize":
+//       activeElement.endCoordinates!.x = endX + offSetX;
+//       activeElement.endCoordinates!.y = endY + offSetY;
+//       break;
+//   }
 
-  canvasElements[activeElementIndex] = activeElement;
-  // setNewRecoilElements(canvasElements);
-}
+//   canvasElements[activeElementIndex] = activeElement;
+//   // setNewRecoilElements(canvasElements);
+// }
 
 function handleElementInversion(element: ElementTypes) {
   const activeElement = cloneDeep(element);
   const { x: startX, y: startY } = activeElement.startCoordinates!;
   const { x: endX, y: endY } = activeElement.endCoordinates!;
 
-  switch (globalCursorStyle) {
+  switch (currentCursorStyle) {
     case "nw-resize":
       if (startX >= endX) {
         let temp = startX;

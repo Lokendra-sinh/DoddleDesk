@@ -23,20 +23,34 @@ export function setCanvasElements(elements: ElementsContainer) {
     canvasElements.push(element);
   });
 }
-
-export let globalCursorStyle: string = "default";
-export function setGlobalCursorStyle(cursorStyle: string) {
-  globalCursorStyle = cursorStyle;
+export const cursorWidth = 2;
+export let cursorHeight = 20;
+export const setCursorHeight = (height: number) => {
+  cursorHeight = height;
+};
+export const cursorColor = "black";
+export const cursorBlinkingInterval = 500;
+export let cursorPosition = {
+  x: 0,
+  y: 0,
+};
+export function setCursorPosition(x: number, y: number) {
+  cursorPosition.x = x;
+  cursorPosition.y = y;
+}
+export let currentCursorStyle: string = "default";
+export function setCurrentCursorStyle(cursorStyle: string) {
+  currentCursorStyle = cursorStyle;
 }
 
-export let isElementMoving : boolean = false;
-export function setIsElementMoving(value: boolean){
-  isElementMoving = value;
+export let isElementCurrentlyMoving : boolean = false;
+export function setIsElementCurrentlyMoving(value: boolean){
+  isElementCurrentlyMoving = value;
 }
 
-export let isElementResizing: boolean = false;
-export function setIsElementResizing(value: boolean){
-  isElementResizing = value;
+export let isElementCurrentlyResizing: boolean = false;
+export function setIsElementCurrentlyResizing(value: boolean){
+  isElementCurrentlyResizing = value;
 }
 
 export const trailPointLifeSpan = 100;
@@ -47,11 +61,16 @@ export function setEraserFadeTrailPoints(points: {x: number, y: number, drawnTim
     eraserFadeTrailPoints.push(point);
   })
 }
+export let blinkingCursorIntervalId: number | undefined = undefined;
+export const setBlinkingCursorIntervalId = (id: number | undefined) => {
+  blinkingCursorIntervalId = id;
+}
+
 export const MARGIN_GAP = 8;
 export const CIRCLE_MARGIN_GAP = 1;
 export const BALL_RADIUS = 4;
-export const BOUNDING_BOX_COLOR = "#0891b2";
-export const CUE_BALL_COLOR = "#06b6d4";
+export const BOUNDING_BOX_COLOR = "#9333ea";
+export const CUE_BALL_COLOR = "#6b21a8";
 export let areListenersAttached = false;
 export let cueBallsAreVisible = false;
 export const setCueBallsAreVisible = (value: boolean) => {
@@ -111,10 +130,14 @@ overlayForDrag.style.left = "0";
 overlayForDrag.style.width = `${window.innerWidth}px`;
 overlayForDrag.style.height = `${window.innerHeight}px`;
 overlayForDrag.style.cursor = "nwse-resize";
-overlayForDrag.style.zIndex = "5";
+overlayForDrag.style.zIndex = "9999";
 overlayForDrag.style.display = "none";
 overlayForDrag.style.backgroundColor = "transparent";
 overlayForDrag.style.pointerEvents = "all";
 overlayForDrag.className = "overlay-for-dragging";
 
 document.body.appendChild(overlayForDrag);
+
+
+export const undoStack: ElementsContainer = [];
+export const redoStack: ElementsContainer = [];

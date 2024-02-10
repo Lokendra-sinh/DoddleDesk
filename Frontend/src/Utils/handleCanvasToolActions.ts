@@ -1,88 +1,91 @@
 import React from "react";
-import { ElementsContainer } from "../Types/Types";
-import { activeInteractiveElement, canvasElements, globalCursorStyle, setGlobalCursorStyle, isElementMoving, isElementResizing } from "./interactionhelpers";
+import { ElementTypes, ElementsContainer } from "../Types/Types";
+import { currentCursorStyle, setCurrentCursorStyle, isElementCurrentlyMoving, isElementCurrentlyResizing } from "./interactionhelpers";
 import { renderSelectedShape } from "./Render/DynamicElements/renderSelectedShape";
-import { setCanvasAndRecoilState, handlMainCanvasMouseMovements } from "./Operations/handleMainCanvasMouseMovements";
-import { handleActiveOperation } from "./Operations/handleActiveOperation";
+import { handleSelectModeMouseMove } from "./Operations/handleSelectModeMouseMove";
+import { handleSelectModeMouseDown } from "./Operations/handleSelectModeMouseDown";
 import { handleEraserOperation } from "./Operations/Eraser/handleEraserOperation";
-import { startAnimationPreview } from "./Render/DynamicElements/handleSelectedShapeAnimation";
-
 
 
 export const handleCanvasToolActions = (
   mainCanvasRef: React.RefObject<HTMLCanvasElement>,
   selectedTool: string,
   setSelectedTool: React.Dispatch<React.SetStateAction<string>>,
-  setRecoilElements: React.Dispatch<React.SetStateAction<ElementsContainer>>,
-  recoilElements: ElementsContainer,
+  setAppElements: React.Dispatch<React.SetStateAction<ElementsContainer>>,
+  appElements: ElementsContainer,
+  activeCanvasElement: ElementTypes | null,
+  setActiveCanvasElement: React.Dispatch<React.SetStateAction<ElementTypes | null>>,
+  setIsSidePanelOpen: React.Dispatch<React.SetStateAction<boolean>>,
 ) => {
     if (!mainCanvasRef.current) return;
 
-  
   switch (selectedTool) {
+    
     case "circle":
     case "ellipse":
     case "rectangle":
     case "biSquare":
     case "pencil":
-    case "text":
-      setGlobalCursorStyle("crosshair");
-      mainCanvasRef.current.style.cursor = globalCursorStyle;
+      setCurrentCursorStyle("crosshair");
+      mainCanvasRef.current.style.cursor = currentCursorStyle;
       mainCanvasRef.current.addEventListener("mousedown", handleActiveToolMouseDown);
       break;
+
+
     case "select":
-      setGlobalCursorStyle("default");
-      if(recoilElements.length !== 0){
-        setCanvasAndRecoilState(mainCanvasRef, recoilElements, setRecoilElements);
-        mainCanvasRef.current.addEventListener("mousemove", onMouseMove);
-        mainCanvasRef.current.addEventListener("mousedown", handleGeneralCanvasMouseDown);
-      }
-      mainCanvasRef.current.style.cursor = globalCursorStyle;
+        setCurrentCursorStyle("default");
+        mainCanvasRef.current.addEventListener("mousemove", onSelectModeMouseMove);
+        mainCanvasRef.current.addEventListener("mousedown", onSelectModeMouseDown);
+        mainCanvasRef.current.style.cursor = currentCursorStyle;
       break;
+
+
+
     case "eraser":
-      console.log("eraser selected");
+   
       mainCanvasRef.current.style.cursor = "url('/src/assets/cursor-eraser.png'), auto";
-      setGlobalCursorStyle("eraser");
+      setCurrentCursorStyle("eraser");
       mainCanvasRef.current!.addEventListener("mousedown", handleEraserMouseDown);
       break;
   }
 
   function handleActiveToolMouseDown(e: MouseEvent){
-    console.log("Mouse down when tool is: ", selectedTool);
+    
     renderSelectedShape(
       e,
       mainCanvasRef,
       selectedTool,
       setSelectedTool,
-      setRecoilElements
+      setAppElements,
+      setIsSidePanelOpen,
+      setActiveCanvasElement,
     );
   };
 
-  function handleGeneralCanvasMouseDown(e: MouseEvent){
-    handleActiveOperation(e, mainCanvasRef, recoilElements, setRecoilElements);
+  function onSelectModeMouseDown(e: MouseEvent){
+    handleSelectModeMouseDown(e, mainCanvasRef, appElements, setAppElements, setIsSidePanelOpen);
   }
 
   function handleEraserMouseDown(e: MouseEvent){
-    if(globalCursorStyle !== "eraser") return;
+    if(currentCursorStyle !== "eraser") return;
     if (e.button !== 0) return; // to avoid right click
-    console.log("inside eraser mouse down becuase globalCursorStyle is eraser")
-    handleEraserOperation(e, mainCanvasRef, recoilElements, setRecoilElements, setSelectedTool);
+
+    handleEraserOperation(e, mainCanvasRef, appElements, setAppElements, setSelectedTool);
   };
 
- function onMouseMove(e: MouseEvent) {
-  console.log("value of isElementResizing: ", isElementResizing);
-    if(isElementMoving || isElementResizing) return; // if element is currently moving, do not go inside this function to avoid flickering
-    console.log("inside mainCanvasMouse becuase you fucked up")
-    handlMainCanvasMouseMovements(e);
+ function onSelectModeMouseMove(e: MouseEvent) {
+  
+  if(isElementCurrentlyMoving || isElementCurrentlyResizing) return; // if element is currently moving, do not go inside this function to avoid flickering
+    handleSelectModeMouseMove(e, mainCanvasRef, appElements, setAppElements, setIsSidePanelOpen);
   }
 
 
   return () => {
   
       mainCanvasRef.current!.removeEventListener("mousedown", handleActiveToolMouseDown);
-      mainCanvasRef.current!.removeEventListener("mousedown", handleGeneralCanvasMouseDown);
-      mainCanvasRef.current!.removeEventListener("mousemove", onMouseMove);
+      mainCanvasRef.current!.removeEventListener("mousedown", onSelectModeMouseDown);
+      mainCanvasRef.current!.removeEventListener("mousemove", onSelectModeMouseMove);
       mainCanvasRef.current!.removeEventListener("mousedown", handleEraserMouseDown);
-    
+      
   };
 };

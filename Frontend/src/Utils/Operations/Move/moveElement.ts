@@ -2,9 +2,11 @@ import {
   activeInteractiveElement,
   setActiveInteractiveElement,
   canvasElements,
-  isElementMoving,
-  setIsElementMoving,
+  isElementCurrentlyMoving,
+  setIsElementCurrentlyMoving,
   setCanvasElements,
+  undoStack,
+  currentCursorStyle,
 } from "../../interactionhelpers";
 import { ElementsContainer } from "../../../Types/Types";
 import {
@@ -12,6 +14,8 @@ import {
   startAnimationPreview,
   stopAnimationPreview,
 } from "../../Render/DynamicElements/handleSelectedShapeAnimation";
+import { set } from "lodash";
+import React from "react";
 
 
 let initialMouseX: number = 0;
@@ -21,50 +25,61 @@ let animationStarted: boolean = false;
 let setNewRecoilElements: React.Dispatch<
   React.SetStateAction<ElementsContainer>
 >;
+let sidePanelOpen: React.Dispatch<React.SetStateAction<boolean>>;
 
 export function moveElement(
   mouseDownX: number,
   mouseDownY: number,
   recoilElements: ElementsContainer,
-  setRecoilElements: React.Dispatch<React.SetStateAction<ElementsContainer>>
+  setRecoilElements: React.Dispatch<React.SetStateAction<ElementsContainer>>,
+  setIsSidePanelOpen: React.Dispatch<React.SetStateAction<boolean>>,
 ) {
-    console.log("initiating moving operation");
+  
   setNewRecoilElements = setRecoilElements;
   initialMouseX = mouseDownX;
   initialMouseY = mouseDownY;
-
+  sidePanelOpen = setIsSidePanelOpen;
   findActiveElement(initialMouseX, initialMouseY);
-  if (activeElementIndex === -1) return;
+  if (activeElementIndex === -1){
+    setIsElementCurrentlyMoving(false);
+    return;
+  }
   setActiveInteractiveElement(canvasElements[activeElementIndex]);
-
+  setIsElementCurrentlyMoving(true);
+  document.body.style.cursor = currentCursorStyle;
   document.addEventListener("mousemove", onMouseMove);
   document.addEventListener("mouseup", onMouseUp);
 
   function onMouseUp(e: MouseEvent) {
-    // e.stopPropagation();
-    console.log("moving operation completed");
+    e.stopPropagation();
     if (!activeInteractiveElement) return;
     stopAnimationPreview();
     document.removeEventListener("mousemove", onMouseMove);
     document.removeEventListener("mouseup", onMouseUp);
     canvasElements[activeElementIndex] = activeInteractiveElement;
-    console.log("canvasElements: ", canvasElements);
+    
     initialMouseX = 0;
     initialMouseY = 0;
     activeElementIndex = -1;
     animationStarted = false;
-    setIsElementMoving(false);
+    
+    undoStack.push(activeInteractiveElement);
+    console.log("undoStack after moving: ", undoStack);
+    setIsElementCurrentlyMoving(false);
+    sidePanelOpen(true);
+    localStorage.setItem("canvasElements", JSON.stringify(canvasElements));
     setNewRecoilElements(() => [...canvasElements]);
   }
 }
 
 function onMouseMove(e: MouseEvent) {
-//   e.stopPropagation();
+  e.stopPropagation();
   if (!activeInteractiveElement) return;
-  console.log("this is actual mouse move");
+
   if (!animationStarted) {
     startAnimationPreview();
     animationStarted = true;
+    sidePanelOpen(false);
   }
   const newMouseX = e.clientX;
   const newMouseY = e.clientY;
@@ -107,9 +122,12 @@ function onMouseMove(e: MouseEvent) {
   setActiveInteractiveElement(updatedElement);
   canvasElements[activeElementIndex] = updatedElement;
 }
+
+
   initialMouseX = newMouseX;
   initialMouseY = newMouseY;
 }
+
 
 function findActiveElement(mouseDownX: number, mouseDownY: number) {
   const updatedElements = canvasElements.map((element, index) => {

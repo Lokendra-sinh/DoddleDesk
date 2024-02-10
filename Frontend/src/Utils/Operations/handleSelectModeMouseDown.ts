@@ -1,10 +1,9 @@
 import {
-  activeInteractiveElement,
   canvasElements,
-  globalCursorStyle,
-  setIsElementMoving,
-  isElementResizing,
-  setIsElementResizing,
+  currentCursorStyle,
+  setIsElementCurrentlyMoving,
+  isElementCurrentlyResizing,
+  setIsElementCurrentlyResizing,
   setCanvasElements,
   cueBallsAreVisible,
   setCueBallsAreVisible,
@@ -21,11 +20,12 @@ let setNewRecoilElements: React.Dispatch<
   React.SetStateAction<ElementsContainer>
 >;
 
-export function handleActiveOperation(
+export function handleSelectModeMouseDown(
   e: MouseEvent,
   mainCanvasRef: React.RefObject<HTMLCanvasElement>,
   recoilElements: ElementsContainer,
-  setRecoilElements: React.Dispatch<React.SetStateAction<ElementsContainer>>
+  setRecoilElements: React.Dispatch<React.SetStateAction<ElementsContainer>>,
+  setIsSidePanelOpen: React.Dispatch<React.SetStateAction<boolean>>,
 ) {
   e.stopPropagation();
   if (!mainCanvasRef.current || canvasElements.length === 0) return;
@@ -36,45 +36,51 @@ export function handleActiveOperation(
   newRecoilElements = recoilElements;
   setNewRecoilElements = setRecoilElements;
 
-  switch (globalCursorStyle) {
+  //decide active operation based on the cursor style
+  switch (currentCursorStyle) {
     case "move":
-      handleMoveOperation();
+      handleMoveOperation(setIsSidePanelOpen);
       break;
     case "nw-resize":
     case "n-resize":
     case "ne-resize":
     case "w-resize":
-    case "e-resize":
+    case "e-resize":  
     case "sw-resize":
     case "s-resize":
     case "se-resize":
-      setIsElementResizing(true);
-      console.log("resizing and isElementResizing: ", isElementResizing);
-      handleResizeOperation(mouseDownX, mouseDownY, mainCanvasRef, setRecoilElements);
+      setIsElementCurrentlyResizing(true);
+      handleResizeOperation(mouseDownX, mouseDownY, mainCanvasRef, setRecoilElements, setIsSidePanelOpen);
       break;
     case "default":
-      toggleActiveStates(setRecoilElements);
+      //toggle off all active states and hide resize handles/bounding box
       setCueBallsAreVisible(false);
+      setIsElementCurrentlyMoving(false);
+      setIsElementCurrentlyResizing(false);
+      toggleActiveStatesOfElements(setRecoilElements, setIsSidePanelOpen);
       break;
   }
 }
 
-function handleMoveOperation() {
-  setIsElementMoving(true);
+function handleMoveOperation(setIsSidePanelOpen: React.Dispatch<React.SetStateAction<boolean>>) {
+  setIsElementCurrentlyMoving(true);
   setCueBallsAreVisible(true);
-  moveElement(mouseDownX, mouseDownY, newRecoilElements, setNewRecoilElements);
+  moveElement(mouseDownX, mouseDownY, newRecoilElements, setNewRecoilElements, setIsSidePanelOpen);
 }
 
-function toggleActiveStates(
-  setRecoilElements: React.Dispatch<React.SetStateAction<ElementsContainer>>
+function toggleActiveStatesOfElements(
+  setRecoilElements: React.Dispatch<React.SetStateAction<ElementsContainer>>,
+  setIsSidePanelOpen: React.Dispatch<React.SetStateAction<boolean>>
 ) {
   const updatedElements = canvasElements.map((element) => {
-    const tempElement = { ...element };
-    tempElement.isActive = false;
-
+    const tempElement = { ...element, isActive: false};
     return tempElement;
   });
 
   setCanvasElements([...updatedElements]);
+  setIsElementCurrentlyMoving(false);
+  setIsElementCurrentlyResizing(false);
+  setIsSidePanelOpen(false);
   setRecoilElements([...updatedElements]);
+
 }

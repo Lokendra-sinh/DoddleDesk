@@ -1,26 +1,30 @@
-import { ElementsContainer } from "../../../Types/Types";
+import { ElementTypes, ElementsContainer } from "../../../Types/Types";
 import { drawCircle } from "../../shapes/circle";
 import { drawEllipse } from "../../shapes/ellipse";
 import { drawRectangle } from "../../shapes/rectangle";
 import { drawBiSquare } from "../../shapes/biSquare";
 import { drawPencil } from "../../shapes/pencil";
 import { handleResizeHandlesAndBoundingBox } from "../DynamicElements/ResizeHandlers/handleResizeHandlesAndBoundingBox";
-import { setActiveInteractiveElement, canvasElements } from "../../interactionhelpers";
+import { setActiveInteractiveElement, setCueBallsAreVisible } from "../../interactionhelpers";
+
+
 
 
 export function drawStaticElements(
     mainCanvasRef: React.RefObject<HTMLCanvasElement>,
-    recoilElements: ElementsContainer,
+    doddleDeskElements: ElementsContainer,
+    activeCanvasElement: ElementTypes | null,
+    setActiveCanvasElement: React.Dispatch<React.SetStateAction<ElementTypes | null>>,
+    setIsSidePanelOpen: React.Dispatch<React.SetStateAction<boolean>>,
 ){
     if(!mainCanvasRef) return;
     const mainCanvasContext = mainCanvasRef.current?.getContext("2d");
     if(!mainCanvasContext) return;
     mainCanvasContext.clearRect(0, 0, mainCanvasContext.canvas.width, mainCanvasContext.canvas.height);
+    let activeElementIndex = -1;
+
   
-    console.log("inside draw static elements")
-    console.log("recoil elements: ", recoilElements);
-  
-    recoilElements.forEach(element => {
+    doddleDeskElements.forEach((element, index) => {
         if(element.type === "text") return;
 
         switch(element.type) {
@@ -44,8 +48,15 @@ export function drawStaticElements(
         }
 
         if(element.isActive) {
-            setActiveInteractiveElement(element);
-            handleResizeHandlesAndBoundingBox(mainCanvasContext, mainCanvasRef, element);
+            activeElementIndex = index;
         }
     })
+
+    if(activeElementIndex !== -1){
+        handleResizeHandlesAndBoundingBox(mainCanvasContext, mainCanvasRef, doddleDeskElements[activeElementIndex]);
+        setActiveInteractiveElement(doddleDeskElements[activeElementIndex]);
+        setActiveCanvasElement(doddleDeskElements[activeElementIndex]);
+        setCueBallsAreVisible(true);
+        setIsSidePanelOpen(true);
+    }
 }

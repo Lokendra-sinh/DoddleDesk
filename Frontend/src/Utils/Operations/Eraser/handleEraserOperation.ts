@@ -95,7 +95,8 @@ function checkForElementsToBeErased(mainCanvasX: number, mainCanvasY: number) {
             mainCanvasY >= element.startCoordinates!.y &&
             mainCanvasY <= element.endCoordinates!.y
         ){
-            element.color = 'rgba(0,0,0,0.1)';
+            element.strokeColor = adjustOpacityForErasure(element.strokeColor);
+            element.fillColor = adjustOpacityForErasure(element.fillColor);
             element.toBeErased = true;
         }
     });
@@ -103,3 +104,23 @@ function checkForElementsToBeErased(mainCanvasX: number, mainCanvasY: number) {
     setCanvasElements(elementsToBeErased);
 
 }
+
+
+function hexToRGBA(hex: string, opacity: number) {
+  hex = hex.replace(/^#/, '');
+
+
+  var r = parseInt(hex.slice(0, 2), 16),
+      g = parseInt(hex.slice(2, 4), 16),
+      b = parseInt(hex.slice(4, 6), 16);
+
+  return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+}
+
+function adjustOpacityForErasure(color: string) {
+ 
+     var newOpacity = 0.1;
+     return hexToRGBA(color, newOpacity);
+    
+}
+
