@@ -29,7 +29,6 @@ interface ToolbarProps {
 }
 
 const Toolbar: React.FC<ToolbarProps> = ({
-  isSidePanelOpen,
   setIsSidePanelOpen,
 }) => {
   const [selectedTool, setSelectedTool] = useRecoilState<string>(currentTool);
@@ -67,7 +66,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
 
         //if the top element in the undoStack is deleted, then remove the element from the canvasElements otherwise update the element in the canvasElements
       const topElement = undoStack[undoStack.length - 1];
-      const topElementIndexInCanvasElements = canvasElements.findIndex(Element => Element.id === poppedElement.id);
+      const topElementIndexInCanvasElements = appElements.findIndex(Element => Element.id === poppedElement.id);
 
       if(topElement.isDeleted){
           const updatedElementsAfterUndoOperation = canvasElements.filter(Element => Element.id !== poppedElement.id);

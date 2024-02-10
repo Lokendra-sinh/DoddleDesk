@@ -4,46 +4,37 @@ import { ElementStyleControlsPanel } from "../Panel/SidePanel/ElementStyleContro
 import { useRecoilState } from "recoil";
 import {
   DoddleDeskElements,
-  currentActiveElementOnCanvas,
 } from "../../Recoil/Atoms/elements";
 import { handleResize } from "../../Utils/canvasEventHandlers";
 import { initiateCanvas } from "../../Utils/canvasEventHandlers";
-import { ElementsContainer, ElementTypes } from "../../Types/Types";
+import { ElementsContainer} from "../../Types/Types";
 import { currentTool } from "../../Recoil/Atoms/tools";
 import { handleCanvasToolActions } from "../../Utils/handleCanvasToolActions";
 import { debounce } from "lodash";
 import { drawStaticElements } from "../../Utils/Render/StaticElements/drawStaticElements";
 import {
-  setAnimationContext,
-  stopAnimationPreview,
-} from "../../Utils/Render/DynamicElements/handleSelectedShapeAnimation";
-import {
-  canvasElements,
   blinkingCursorIntervalId,
-  undoStack,
   setCanvasElements,
 } from "../../Utils/interactionhelpers";
+import { setAnimationContext } from "../../Utils/Render/DynamicElements/handleSelectedShapeAnimation";
 
 const Board: React.FC = () => {
   const [selectedTool, setSelectedTool] = useRecoilState<string>(currentTool);
   const [isSidePanelOpen, setIsSidePanelOpen] = useState<boolean>(false);
   const [appElements, setAppElements] =
     useRecoilState<ElementsContainer>(DoddleDeskElements);
-  const [activeCanvasElement, setActiveCanvasElement] =
-    useRecoilState<ElementTypes | null>(currentActiveElementOnCanvas);
   const mainCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
     if (!mainCanvasRef.current) return;
     const ctx = mainCanvasRef.current.getContext("2d");
     if (!ctx) return;
-    setAnimationContext(ctx, mainCanvasRef, setAppElements);
+
+    setAnimationContext(ctx, mainCanvasRef);
    
     drawStaticElements(
       mainCanvasRef,
       appElements,
-      activeCanvasElement,
-      setActiveCanvasElement,
       setIsSidePanelOpen
     );
 
@@ -52,9 +43,6 @@ const Board: React.FC = () => {
       selectedTool,
       setSelectedTool,
       setAppElements,
-      appElements,
-      activeCanvasElement,
-      setActiveCanvasElement,
       setIsSidePanelOpen
     );
 
@@ -83,7 +71,7 @@ const Board: React.FC = () => {
     }
 
     const resizeClosure = () => {
-      handleResize(mainCanvasRef, appElements, setAppElements);
+      handleResize(mainCanvasRef, setAppElements);
     };
     const debouncedResize = debounce(resizeClosure, 20);
 

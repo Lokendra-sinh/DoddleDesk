@@ -2,20 +2,17 @@ import {
   canvasElements,
   currentCursorStyle,
   setIsElementCurrentlyMoving,
-  isElementCurrentlyResizing,
   setIsElementCurrentlyResizing,
   setCanvasElements,
-  cueBallsAreVisible,
   setCueBallsAreVisible,
 } from "../interactionhelpers";
-import { ElementsContainer, ElementTypes } from "../../Types/Types";
+import { ElementsContainer } from "../../Types/Types";
 import { moveElement } from "./Move/moveElement";
 import React from "react";
 import { handleResizeOperation } from "./Resize/handleResizeOperation";
 
 let mouseDownX: number = 0;
 let mouseDownY: number = 0;
-let newRecoilElements: ElementsContainer;
 let setNewRecoilElements: React.Dispatch<
   React.SetStateAction<ElementsContainer>
 >;
@@ -23,7 +20,6 @@ let setNewRecoilElements: React.Dispatch<
 export function handleSelectModeMouseDown(
   e: MouseEvent,
   mainCanvasRef: React.RefObject<HTMLCanvasElement>,
-  recoilElements: ElementsContainer,
   setRecoilElements: React.Dispatch<React.SetStateAction<ElementsContainer>>,
   setIsSidePanelOpen: React.Dispatch<React.SetStateAction<boolean>>,
 ) {
@@ -33,7 +29,6 @@ export function handleSelectModeMouseDown(
   const mainCanvasRect = mainCanvasRef.current.getBoundingClientRect();
   mouseDownX = e.clientX - mainCanvasRect.left;
   mouseDownY = e.clientY - mainCanvasRect.top;
-  newRecoilElements = recoilElements;
   setNewRecoilElements = setRecoilElements;
 
   //decide active operation based on the cursor style
@@ -65,7 +60,7 @@ export function handleSelectModeMouseDown(
 function handleMoveOperation(setIsSidePanelOpen: React.Dispatch<React.SetStateAction<boolean>>) {
   setIsElementCurrentlyMoving(true);
   setCueBallsAreVisible(true);
-  moveElement(mouseDownX, mouseDownY, newRecoilElements, setNewRecoilElements, setIsSidePanelOpen);
+  moveElement(mouseDownX, mouseDownY, setNewRecoilElements, setIsSidePanelOpen);
 }
 
 function toggleActiveStatesOfElements(

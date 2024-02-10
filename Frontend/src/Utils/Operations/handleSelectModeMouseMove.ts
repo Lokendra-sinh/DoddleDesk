@@ -1,14 +1,12 @@
-import { ElementTypes, ElementsContainer } from "../../Types/Types";
+import { ElementTypes } from "../../Types/Types";
 import {
   canvasElements,
   cueBallProperties,
   boundingBoxProperties,
   BALL_RADIUS,
-  isElementCurrentlyMoving,
   cueBallsAreVisible,
   currentCursorStyle,
   setCurrentCursorStyle,
-  isElementCurrentlyResizing,
 } from "../interactionhelpers";
 
 let mouseX: number = 0;
@@ -18,9 +16,6 @@ let mouseY: number = 0;
 export function handleSelectModeMouseMove(
   e: MouseEvent,
   mainCanvasRef: React.RefObject<HTMLCanvasElement>,
-  appElements: ElementsContainer,
-  setAppElements: React.Dispatch<React.SetStateAction<ElementsContainer>>,
-  setIsSidePanelOpen: React.Dispatch<React.SetStateAction<boolean>>,
   ) {
   e.stopPropagation();
 

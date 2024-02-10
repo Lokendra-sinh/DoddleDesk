@@ -1,4 +1,4 @@
-import { set } from "lodash";
+
 import { trailPointLifeSpan } from "../interactionhelpers";
 import { setEraserFadeTrailPoints, eraserFadeTrailPoints } from "../interactionhelpers";
 
@@ -6,7 +6,6 @@ import { setEraserFadeTrailPoints, eraserFadeTrailPoints } from "../interactionh
 
 
 export function drawEraserTrail(
-    canvasRef: React.RefObject<HTMLCanvasElement>,
     canvasContext: CanvasRenderingContext2D,
 ){
     const currentTime = Date.now();
