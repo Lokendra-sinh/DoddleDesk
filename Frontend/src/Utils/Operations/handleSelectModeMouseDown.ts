@@ -63,7 +63,7 @@ export function handleSelectModeMouseDown(
 function handleMoveOperation(setIsSidePanelOpen: React.Dispatch<React.SetStateAction<boolean>>) {
   setIsElementCurrentlyMoving(true);
   setCueBallsAreVisible(true);
-  moveElement(mouseDownX, mouseDownY, newRecoilElements, setNewRecoilElements, setIsSidePanelOpen);
+  moveElement(mouseDownX, mouseDownY, setNewRecoilElements, setIsSidePanelOpen);
 }
 
 function toggleActiveStatesOfElements(

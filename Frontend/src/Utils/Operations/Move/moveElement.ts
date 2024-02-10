@@ -2,7 +2,6 @@ import {
   activeInteractiveElement,
   setActiveInteractiveElement,
   canvasElements,
-  isElementCurrentlyMoving,
   setIsElementCurrentlyMoving,
   setCanvasElements,
   undoStack,
@@ -10,11 +9,9 @@ import {
 } from "../../interactionhelpers";
 import { ElementsContainer } from "../../../Types/Types";
 import {
-  setAnimationContext,
   startAnimationPreview,
   stopAnimationPreview,
 } from "../../Render/DynamicElements/handleSelectedShapeAnimation";
-import { set } from "lodash";
 import React from "react";
 
 
@@ -30,7 +27,6 @@ let sidePanelOpen: React.Dispatch<React.SetStateAction<boolean>>;
 export function moveElement(
   mouseDownX: number,
   mouseDownY: number,
-  recoilElements: ElementsContainer,
   setRecoilElements: React.Dispatch<React.SetStateAction<ElementsContainer>>,
   setIsSidePanelOpen: React.Dispatch<React.SetStateAction<boolean>>,
 ) {
