@@ -5,8 +5,7 @@ let startX = 0;
 let startY = 0;
 let endX = 0;
 let endY = 0;
-let width = 0;
-let height = 0;
+
 
 export function calculateHandlersAndBoxPosition(element: ElementTypes | undefined) {
   if (!element) return;
@@ -18,9 +17,6 @@ export function calculateHandlersAndBoxPosition(element: ElementTypes | undefine
   endY = Math.max(element.startCoordinates!.y, element.endCoordinates!.y) || 0;
 
  
-    // Calculate the width and height of the bounding box
-    width = endX - startX;
-    height = endY - startY;
 
     // if(element.type === "text") implement this later
     if(element.type === "circle") {
@@ -49,9 +45,6 @@ function calculateCirclesBoundingBoxPosition() {
      endX = centerX + radius;
      endY = centerY + radius;
   
-    // Adjust the width and height to include the gap
-     width = radius * 2;
-     height = radius * 2;
 }
 
 function updateBoundingBoxPosition() {
