@@ -214,46 +214,6 @@ function calculateInitialOffset() {
   }
 }
 
-// function updateElementForInitialOffset() {
-//   const activeElement = cloneDeep(canvasElements[activeElementIndex]);
-//   const { x: startX, y: startY } = activeElement.startCoordinates!;
-//   const { x: endX, y: endY } = activeElement.endCoordinates!;
-
-//   switch (currentCursorStyle) {
-//     case "nw-resize":
-//       activeElement.startCoordinates!.x = startX + offSetX;
-//       activeElement.startCoordinates!.y = startY + offSetY;
-//       break;
-//     case "n-resize":
-//       activeElement.startCoordinates!.y = startY + offSetY;
-//       break;
-//     case "ne-resize":
-//       activeElement.endCoordinates!.x = endX + offSetX;
-//       activeElement.startCoordinates!.y = startY + offSetY;
-//       break;
-//     case "w-resize":
-//       activeElement.startCoordinates!.x = startX + offSetX;
-//       break;
-//     case "e-resize":
-//       activeElement.endCoordinates!.x = endX + offSetX;
-//       break;
-//     case "sw-resize":
-//       activeElement.startCoordinates!.x = startX + offSetX;
-//       activeElement.endCoordinates!.y = endY + offSetY;
-//       break;
-//     case "s-resize":
-//       activeElement.endCoordinates!.y = endY + offSetY;
-//       break;
-//     case "se-resize":
-//       activeElement.endCoordinates!.x = endX + offSetX;
-//       activeElement.endCoordinates!.y = endY + offSetY;
-//       break;
-//   }
-
-//   canvasElements[activeElementIndex] = activeElement;
-//   // setNewRecoilElements(canvasElements);
-// }
-
 function handleElementInversion(element: ElementTypes) {
   const activeElement = cloneDeep(element);
   const { x: startX, y: startY } = activeElement.startCoordinates!;

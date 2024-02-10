@@ -13,12 +13,10 @@ import { handleCanvasToolActions } from "../../Utils/handleCanvasToolActions";
 import { debounce } from "lodash";
 import { drawStaticElements } from "../../Utils/Render/StaticElements/drawStaticElements";
 import {
-  setAnimationContext,
-} from "../../Utils/Render/DynamicElements/handleSelectedShapeAnimation";
-import {
   blinkingCursorIntervalId,
   setCanvasElements,
 } from "../../Utils/interactionhelpers";
+import { setAnimationContext } from "../../Utils/Render/DynamicElements/handleSelectedShapeAnimation";
 
 const Board: React.FC = () => {
   const [selectedTool, setSelectedTool] = useRecoilState<string>(currentTool);
@@ -31,7 +29,8 @@ const Board: React.FC = () => {
     if (!mainCanvasRef.current) return;
     const ctx = mainCanvasRef.current.getContext("2d");
     if (!ctx) return;
-    setAnimationContext(ctx, mainCanvasRef, setAppElements);
+
+    setAnimationContext(ctx, mainCanvasRef);
    
     drawStaticElements(
       mainCanvasRef,
@@ -44,7 +43,6 @@ const Board: React.FC = () => {
       selectedTool,
       setSelectedTool,
       setAppElements,
-      appElements,
       setIsSidePanelOpen
     );
 

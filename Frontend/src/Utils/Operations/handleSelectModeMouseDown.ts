@@ -13,7 +13,6 @@ import { handleResizeOperation } from "./Resize/handleResizeOperation";
 
 let mouseDownX: number = 0;
 let mouseDownY: number = 0;
-let newRecoilElements: ElementsContainer;
 let setNewRecoilElements: React.Dispatch<
   React.SetStateAction<ElementsContainer>
 >;
@@ -21,7 +20,6 @@ let setNewRecoilElements: React.Dispatch<
 export function handleSelectModeMouseDown(
   e: MouseEvent,
   mainCanvasRef: React.RefObject<HTMLCanvasElement>,
-  recoilElements: ElementsContainer,
   setRecoilElements: React.Dispatch<React.SetStateAction<ElementsContainer>>,
   setIsSidePanelOpen: React.Dispatch<React.SetStateAction<boolean>>,
 ) {
@@ -31,7 +29,6 @@ export function handleSelectModeMouseDown(
   const mainCanvasRect = mainCanvasRef.current.getBoundingClientRect();
   mouseDownX = e.clientX - mainCanvasRect.left;
   mouseDownY = e.clientY - mainCanvasRect.top;
-  newRecoilElements = recoilElements;
   setNewRecoilElements = setRecoilElements;
 
   //decide active operation based on the cursor style

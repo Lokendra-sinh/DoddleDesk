@@ -12,7 +12,6 @@ export const handleCanvasToolActions = (
   selectedTool: string,
   setSelectedTool: React.Dispatch<React.SetStateAction<string>>,
   setAppElements: React.Dispatch<React.SetStateAction<ElementsContainer>>,
-  appElements: ElementsContainer,
   setIsSidePanelOpen: React.Dispatch<React.SetStateAction<boolean>>,
 ) => {
     if (!mainCanvasRef.current) return;
@@ -55,12 +54,11 @@ export const handleCanvasToolActions = (
       selectedTool,
       setSelectedTool,
       setAppElements,
-      setIsSidePanelOpen,
     );
   };
 
   function onSelectModeMouseDown(e: MouseEvent){
-    handleSelectModeMouseDown(e, mainCanvasRef, appElements, setAppElements, setIsSidePanelOpen);
+    handleSelectModeMouseDown(e, mainCanvasRef, setAppElements, setIsSidePanelOpen);
   }
 
   function handleEraserMouseDown(e: MouseEvent){

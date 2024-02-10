@@ -2,7 +2,7 @@ import {
   eraserFadeTrailPoints,
   canvasElements,
 } from "../../interactionhelpers";
-import { ElementTypes, ElementsContainer } from "../../../Types/Types";
+import { ElementTypes } from "../../../Types/Types";
 import { drawCircle } from "../../shapes/circle";
 import { drawEllipse } from "../../shapes/ellipse";
 import { drawRectangle } from "../../shapes/rectangle";
@@ -14,18 +14,15 @@ import { drawEraserTrail } from "../../shapes/eraserTrail";
 let animationId: number | null = null;
 let canvasContext: CanvasRenderingContext2D;
 let canvasRef: React.RefObject<HTMLCanvasElement>;
-let setNewRecoilElements: React.Dispatch<
-  React.SetStateAction<ElementsContainer>
->;
+
 
 export function setAnimationContext(
   animationCanvasRenderContext: CanvasRenderingContext2D,
   mainCanvasRef: React.RefObject<HTMLCanvasElement>,
-  setRecoilElements: React.Dispatch<React.SetStateAction<ElementsContainer>>
 ) {
   canvasContext = animationCanvasRenderContext;
   canvasRef = mainCanvasRef;
-  setNewRecoilElements = setRecoilElements;
+
 }
 
 function animate() {
