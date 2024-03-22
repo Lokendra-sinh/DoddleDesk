@@ -5,7 +5,7 @@ import { renderSelectedShape } from "./Render/DynamicElements/renderSelectedShap
 import { handleSelectModeMouseMove } from "./Operations/handleSelectModeMouseMove";
 import { handleSelectModeMouseDown } from "./Operations/handleSelectModeMouseDown";
 import { handleEraserOperation } from "./Operations/Eraser/handleEraserOperation";
-
+import { handleTextToolMouseDown } from "./Text/handleTextToolMouseDown";
 
 export const handleCanvasToolActions = (
   mainCanvasRef: React.RefObject<HTMLCanvasElement>,
@@ -44,6 +44,12 @@ export const handleCanvasToolActions = (
       setCurrentCursorStyle("eraser");
       mainCanvasRef.current!.addEventListener("mousedown", handleEraserMouseDown);
       break;
+
+      case "text":
+        setCurrentCursorStyle("text");
+        mainCanvasRef.current.style.cursor = currentCursorStyle;
+        mainCanvasRef.current.addEventListener("mousedown", onTextToolMouseDown);
+        break;
   }
 
   function handleActiveToolMouseDown(e: MouseEvent){
@@ -74,6 +80,16 @@ export const handleCanvasToolActions = (
     handleSelectModeMouseMove(e, mainCanvasRef);
   }
 
+  function onTextToolMouseDown(e: MouseEvent){
+    //as soon as the mouse is down, change the cursor style to default and call the setSelectedTool function to change the selected tool to select
+  
+    
+      handleTextToolMouseDown(e, mainCanvasRef);
+      setCurrentCursorStyle("default");
+      mainCanvasRef.current!.style.cursor = currentCursorStyle;
+      setSelectedTool("select");
+    
+  }
 
   return () => {
   
@@ -81,6 +97,6 @@ export const handleCanvasToolActions = (
       mainCanvasRef.current!.removeEventListener("mousedown", onSelectModeMouseDown);
       mainCanvasRef.current!.removeEventListener("mousemove", onSelectModeMouseMove);
       mainCanvasRef.current!.removeEventListener("mousedown", handleEraserMouseDown);
-      
+      mainCanvasRef.current!.removeEventListener("mousedown", onTextToolMouseDown);
   };
 };

@@ -95,7 +95,7 @@ export function renderSelectedShape(
   overlayForDrag.style.display = "block";
   overlayForDrag.style.cursor = "crosshair";
   if(currentTool === "pencil"){
-    overlayForDrag.addEventListener("mousemove", throttle(onMouseMove, 20));
+    overlayForDrag.addEventListener("mousemove", onMouseMove);
   } else {
     overlayForDrag.addEventListener("mousemove", onMouseMove);
   }
@@ -171,6 +171,7 @@ function onMouseUp(e: MouseEvent) {
 
   canvasElements[elementIndex] = tempElement;
   undoStack.push(canvasElements[elementIndex]);
+  console.log("pencil:", canvasElements[elementIndex]);
   animationStarted = false;
   allowDrawing = false;
   distanceChecked = false;
