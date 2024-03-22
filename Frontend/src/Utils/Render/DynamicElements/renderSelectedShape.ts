@@ -7,7 +7,7 @@ import {
 } from "../../interactionhelpers";
 import { setAnimationContext, startAnimationPreview, stopAnimationPreview } from "./handleSelectedShapeAnimation";
 import { v4 as uuidv4 } from "uuid";
-import { cloneDeep, throttle } from "lodash";
+import { cloneDeep } from "lodash";
 import { undoStack } from "../../interactionhelpers";
 
 let allowDrawing = false;
