@@ -35,6 +35,7 @@ export function drawPencil(ctx: CanvasRenderingContext2D, element: ElementTypes)
   ctx.quadraticCurveTo(secondLast.x, secondLast.y, last.x, last.y);
 
   ctx.stroke();
+  ctx.imageSmoothingEnabled = false;
 }
 
 // Point sampling function
