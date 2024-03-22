@@ -107,7 +107,7 @@ const Board: React.FC = () => {
           className="absolute top-0 left-0 z-5"
         ></canvas>
       </div>
-      {isSidePanelOpen && <ElementStyleControlsPanel />}
+      {isSidePanelOpen && <ElementStyleControlsPanel canvasRef={mainCanvasRef} />}
     </div>
   );
 };

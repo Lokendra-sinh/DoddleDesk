@@ -15,7 +15,11 @@ import {
 let top: number = 0;
 let left: number = 0;
 
-export const ElementStyleControlsPanel: React.FC = () => {
+interface Props {
+  canvasRef: React.RefObject<HTMLCanvasElement>;
+}
+
+export const ElementStyleControlsPanel: React.FC<Props> = ({canvasRef}) => {
   const [strokeColor, setStrokeColor] = useState<string>("red");
   const [fillColor, setFillColor] = useState<string>("red");
   const [isStrokeColorMenuOpen, setIsStrokeColorMenuOpen] =
@@ -56,6 +60,12 @@ export const ElementStyleControlsPanel: React.FC = () => {
     setFillColor(color);
     //only update the fill color of the active element if there is an active element
     if (activeInteractiveElement) updateElementsAfterFillColorChange(color);
+    if(activeInteractiveElement?.type === "pencil"){
+        const ctx = canvasRef.current?.getContext("2d");
+        if(ctx){
+          animatePencilStroke(ctx, activeInteractiveElement, 3000);
+        }
+    }
   };
 
   const updateElementsAfterFillColorChange = (color: string) => {
@@ -400,3 +410,91 @@ export const ElementStyleControlsPanel: React.FC = () => {
 };
 
 export default ElementStyleControlsPanel;
+
+
+
+function animatePencilStroke(ctx: CanvasRenderingContext2D, element: any, duration: number) {
+  if (!ctx || !element.points || element.points.length < 1) return;
+
+  const totalPoints = element.points.length;
+  if (totalPoints < 2) return;
+
+  const startTime = performance.now();
+  const endTime = startTime + duration;
+
+  function drawSegment() {
+    const currentTime = performance.now();
+    const pointsToBeAnimated = Math.floor((currentTime - startTime) / duration * totalPoints);
+
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.beginPath();
+    ctx.moveTo(element.points[0].x, element.points[0].y);
+    ctx.lineWidth = element.strokeWidth;
+    ctx.strokeStyle = element.strokeColor;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+
+    // Enable imageSmoothingEnabled for anti-aliasing
+    ctx.imageSmoothingEnabled = true;
+
+
+    const sampledPoints = samplePoints(element.points, 10, pointsToBeAnimated);
+
+    ctx.moveTo(sampledPoints[0].x, sampledPoints[0].y);
+
+    for (let i = 1; i < sampledPoints.length - 2; i++) {
+      
+      const currentPoint = sampledPoints[i];
+      const nextMidPoint = {
+        x: (currentPoint.x + sampledPoints[i + 1].x) / 2,
+        y: (currentPoint.y + sampledPoints[i + 1].y) / 2,
+      }
+      ctx.quadraticCurveTo(currentPoint.x, currentPoint.y, nextMidPoint.x, nextMidPoint.y)
+    }
+
+    if (sampledPoints.length >= 2) {
+      const secondLastPoint = sampledPoints[sampledPoints.length - 2];
+      const lastPoint = sampledPoints[sampledPoints.length - 1];
+      console.log("second last point:", secondLastPoint, "last point:", lastPoint);
+      ctx.quadraticCurveTo(secondLastPoint.x, secondLastPoint.y, lastPoint.x, lastPoint.y);
+    }
+    
+
+    ctx.stroke();
+
+    // Disable imageSmoothingEnabled after drawing
+    ctx.imageSmoothingEnabled = false;
+
+    if (currentTime < endTime) {
+      requestAnimationFrame(drawSegment);
+    }
+  }
+
+  requestAnimationFrame(drawSegment);
+}
+
+function samplePoints(points: { x: number; y: number }[], distance: number, pointsToBeAnimated: number) {
+  const sampledPoints = [points[0]];
+  let prevPoint = points[0];
+  
+  for (let i = 1; i < Math.min(pointsToBeAnimated, points.length); i++) {
+    const currentPoint = points[i];
+    const dx = currentPoint.x - prevPoint.x;
+    const dy = currentPoint.y - prevPoint.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    
+    if (dist >= distance) {
+      sampledPoints.push(currentPoint);
+      prevPoint = currentPoint;
+    }
+  }
+  
+  // const lastPoint = points[Math.min(pointsToBeAnimated, points.length) - 1];
+  // if (sampledPoints[sampledPoints.length - 1] !== lastPoint) {
+  //   sampledPoints.push(lastPoint);
+  // }
+
+  sampledPoints.push(points[pointsToBeAnimated - 1]);
+  
+  return sampledPoints;
+}
